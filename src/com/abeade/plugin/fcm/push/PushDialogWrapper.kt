@@ -5,16 +5,18 @@ import com.abeade.plugin.fcm.push.SettingsManager.Companion.PREFERENCE_KEY
 import com.abeade.plugin.fcm.push.stetho.HumanReadableException
 import com.abeade.plugin.fcm.push.stetho.MultipleStethoProcessesException
 import com.abeade.plugin.fcm.push.stetho.StethoPreferenceSearcher
-import com.intellij.ide.util.PropertiesComponent
-import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.ui.layout.panel
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
 import com.intellij.icons.AllIcons
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants
-import org.fife.ui.rtextarea.RTextScrollPane
+import com.intellij.ide.util.PropertiesComponent
+import com.intellij.json.JsonLanguage
+import com.intellij.lang.Language
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.ui.LanguageTextField
+import com.intellij.ui.layout.panel
 import java.awt.Dimension
 import javax.swing.JCheckBox
 import javax.swing.JComponent
@@ -46,7 +48,7 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
     private var data: PushData? = null
 
     private lateinit var firebaseIdField: JTextField
-    private lateinit var dataField: RSyntaxTextArea
+    private lateinit var dataField: CustomEditorField
     private lateinit var rememberCheckBox: JCheckBox
 
     override fun getDimensionServiceKey(): String? = DIMENSION_SERVICE_KEY
@@ -57,11 +59,8 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
         firebaseIdField = JTextField(firebaseId)
-        dataField = RSyntaxTextArea(data).apply {
-            syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_JSON
-            isCodeFoldingEnabled = true
-            isAutoIndentEnabled = true
-            tabSize = 2
+        dataField = CustomEditorField(JsonLanguage.INSTANCE, null, data).apply {
+            setOneLineMode(false)
         }
         rememberCheckBox = JCheckBox().apply { isSelected = saveKey }
 
@@ -72,10 +71,28 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
             }
             row {
                 cell { JLabel("Data").apply { verticalAlignment = JLabel.TOP }(push, grow) }
-                cell { RTextScrollPane(dataField)(grow, grow) }
+                cell { dataField(grow, grow) }
             }
             row("Remember") { rememberCheckBox() }
         }.apply { minimumSize = Dimension(600, 200) }
+    }
+
+    class CustomEditorField(language: Language, project: Project?, s: String) : LanguageTextField(language, project, s) {
+
+        override fun createEditor(): EditorEx {
+            val editor = super.createEditor()
+            editor.setVerticalScrollbarVisible(true)
+            editor.setHorizontalScrollbarVisible(true)
+
+            val settings = editor.settings
+            settings.isLineNumbersShown = true
+            settings.isAutoCodeFoldingEnabled = true
+            settings.isFoldingOutlineShown = true
+            settings.isAllowSingleLogicalLineFolding = true
+            settings.isRightMarginShown=true
+            settings.setTabSize(4)
+            return editor
+        }
     }
 
     private fun discoverFirebaseIdUsingStetho(): String? {
