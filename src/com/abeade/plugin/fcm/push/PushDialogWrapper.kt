@@ -2,6 +2,8 @@ package com.abeade.plugin.fcm.push
 
 import com.abeade.plugin.fcm.push.SettingsManager.Companion.DEFAULT_PREFERENCE
 import com.abeade.plugin.fcm.push.SettingsManager.Companion.PREFERENCE_KEY
+import com.abeade.plugin.fcm.push.stetho.HumanReadableException
+import com.abeade.plugin.fcm.push.stetho.MultipleStethoProcessesException
 import com.abeade.plugin.fcm.push.stetho.StethoPreferenceSearcher
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification.Notification
@@ -76,23 +78,51 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
     }
 
     private fun discoverFirebaseIdUsingStetho(): String? {
-        val preferenceKey = propertiesComponent.getValue(PREFERENCE_KEY) ?: DEFAULT_PREFERENCE
-        return try {
-            StethoPreferenceSearcher().getSharedPreference(preferenceKey)
-        } catch (e: Exception) {
+
+        fun showError(message: String) {
             Notifications.Bus.notify(
                 Notification(
                     "FCM push sender",
                     "FCM push sender",
-                    e.toString(),
+                    message,
                     NotificationType.ERROR
                 )
             )
-            null
+        }
+
+        var result: StethoResult
+        var process: String? = null
+        do {
+            val preferenceKey = propertiesComponent.getValue(PREFERENCE_KEY) ?: DEFAULT_PREFERENCE
+            result = try {
+                StethoResult.Success(StethoPreferenceSearcher().getSharedPreference(preferenceKey, process))
+            } catch (e: MultipleStethoProcessesException) {
+                showError(e.reason)
+                StethoResult.MultipleProcessError(e.processes)
+            } catch (e: HumanReadableException) {
+                showError(e.reason)
+                StethoResult.Error
+            } catch (e: Exception) {
+                showError(e.toString())
+                StethoResult.Error
+            }
+            if (result is StethoResult.MultipleProcessError) {
+                val dialog = StethoProcessDialogWrapper(result.processes)
+                if (dialog.showAndGet()) {
+                    process = dialog.selectedProcess
+                } else {
+                    result = StethoResult.Error
+                }
+            }
+        } while (result is StethoResult.MultipleProcessError)
+        return when (result) {
+            is StethoResult.Success -> result.value
+            else -> null
         }
     }
 
     private fun reloadFirebaseIdFromStetho() {
+        firebaseIdField.text = String.EMPTY
         discoverFirebaseIdUsingStetho()?.let {
             firebaseIdField.text = it
         }
@@ -121,5 +151,11 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         true
     } catch (e: JsonParseException) {
         false
+    }
+
+    sealed class StethoResult {
+        data class Success(val value: String?): StethoResult()
+        object Error: StethoResult()
+        data class  MultipleProcessError(val processes: List<String>): StethoResult()
     }
 }

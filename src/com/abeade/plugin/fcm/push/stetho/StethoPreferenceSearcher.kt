@@ -1,11 +1,9 @@
 package com.abeade.plugin.fcm.push.stetho
 
-import com.abeade.plugin.fcm.push.EMPTY
 import com.abeade.plugin.fcm.push.SettingsManager
 import com.intellij.openapi.externalSystem.service.execution.NotSupportedException
 import java.io.IOException
 import java.nio.charset.StandardCharsets
-import kotlin.math.absoluteValue
 
 class StethoPreferenceSearcher {
 
@@ -17,24 +15,18 @@ class StethoPreferenceSearcher {
         private val commands = listOf(prefsAsUtf8, printAsUtf8)
     }
 
-    fun getSharedPreference(key: String): String? {
-        var result = String.EMPTY
-        try {
-            val struct = Struct()
-            val adbSock = stethoOpen(null, null, SettingsManager().adbPort)
-            adbSock.outStream.write("DUMP".toByteArray() + struct.pack("!i", 1))
-            var enterFrame = "!".toByteArray() + struct.pack("!i", commands.size.toLong())
-            for (command in commands) {
-                enterFrame += struct.pack("!H", command.size.toLong())
-                enterFrame += command
-            }
-            adbSock.outStream.write(enterFrame)
-            result = readFrames(adbSock, struct)
-        } catch (e: HumanReadableException) {
-            println(e.reason)
-        } catch (e: Exception) {
-            e.printStackTrace()
+    fun getSharedPreference(key: String, process: String?): String? {
+        var result: String
+        val struct = Struct()
+        val adbSock = stethoOpen(null, process, SettingsManager().adbPort)
+        adbSock.outStream.write("DUMP".toByteArray() + struct.pack("!i", 1))
+        var enterFrame = "!".toByteArray() + struct.pack("!i", commands.size.toLong())
+        for (command in commands) {
+            enterFrame += struct.pack("!H", command.size.toLong())
+            enterFrame += command
         }
+        adbSock.outStream.write(enterFrame)
+        result = readFrames(adbSock, struct)
         val shared = result.lines().firstOrNull { it.contains("$key$PREF_SEPARATOR") }
         return shared?.split(PREF_SEPARATOR)?.lastOrNull()
     }
