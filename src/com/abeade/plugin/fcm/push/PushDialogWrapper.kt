@@ -6,14 +6,11 @@ import com.abeade.plugin.fcm.push.stetho.HumanReadableException
 import com.abeade.plugin.fcm.push.stetho.MultipleStethoProcessesException
 import com.abeade.plugin.fcm.push.stetho.StethoPreferenceSearcher
 import com.intellij.ide.util.PropertiesComponent
-import com.intellij.notification.Notification
-import com.intellij.notification.NotificationType
-import com.intellij.notification.Notifications
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.layout.panel
-import gherkin.deps.com.google.gson.JsonParseException
-import gherkin.deps.com.google.gson.JsonParser
+import com.google.gson.JsonParseException
+import com.google.gson.JsonParser
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
