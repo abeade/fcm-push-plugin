@@ -54,7 +54,7 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(PushDialogWrapper.FIREBASE_KEY).orEmpty()
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
-        firebaseIdField = JTextField(firebaseId)
+        firebaseIdField = JTextField(firebaseId).apply { preferredSize = Dimension(150, 20) }
         dataField = RSyntaxTextArea(data).apply {
             minimumSize = Dimension(400, 200)
             syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_JSON
@@ -75,7 +75,7 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
     }
 
     override fun doOKAction() {
-        data = PushData(firebaseIdField.text, dataField.text)
+        data = PushData(firebaseIdField.text, JsonParser().parse(dataField.text).toString())
         val remember = rememberCheckBox.isSelected
         propertiesComponent.setValue(FIREBASE_KEY, if (remember) firebaseIdField.text else null)
         propertiesComponent.setValue(DATA_KEY, if (remember) dataField.text else null)
