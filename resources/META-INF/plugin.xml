@@ -1,0 +1,37 @@
+<idea-plugin>
+  <id>com.abeade.plugin.fcm.push</id>
+  <name>FCM push sender</name>
+  <version>0.1</version>
+  <vendor email="albert.beade@letgo.com" url="http://www.letgo.com">letgo</vendor>
+
+  <description><![CDATA[
+      Sends push notifications using FCM.<br>
+      Uses <a href="http://facebook.github.io/stetho/">Stetho</a>'s prefs dumpapp plugin to find the application Firebase Registration ID token
+    ]]></description>
+
+  <change-notes><![CDATA[
+      First version.
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="182.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <depends>com.intellij.modules.java</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationConfigurable instance="com.abeade.plugin.fcm.push.PushSettings" groupId="tools"
+                             groupWeight="130" displayName="FCM push sender"/>
+  </extensions>
+
+  <actions>
+    <action id="abeade.fcm.pus.PushDialog" class="com.abeade.plugin.fcm.push.PushAction" text="Send push notification"
+            description="Sends push notifications using FCM" icon="PushIcons.PUSH_ACTION_ICON">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <add-to-group group-id="MainToolBar" anchor="last"/>
+    </action>
+  </actions>
+
+</idea-plugin>
