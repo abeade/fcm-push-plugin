@@ -11,6 +11,7 @@ import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.layout.panel
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
+import com.intellij.icons.AllIcons
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
@@ -34,6 +35,9 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
     init {
         init()
         title = "FCM push sender"
+        setOKButtonText("Send")
+        setOKButtonIcon(AllIcons.Actions.Upload)
+        setCancelButtonIcon(AllIcons.Actions.Cancel)
     }
 
     val pushData: PushData?
@@ -64,7 +68,7 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         return panel {
             row("Firebase ID") {
                 firebaseIdField(pushX)
-                button("Reload") { reloadFirebaseIdFromStetho() }
+                button("Search with Stetho") { reloadFirebaseIdFromStetho() }
             }
             row {
                 cell { JLabel("Data").apply { verticalAlignment = JLabel.TOP }(push, grow) }
