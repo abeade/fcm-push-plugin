@@ -53,10 +53,11 @@ class PushAction : AnAction() {
             request.addHeader("Authorization", "key=$authorization")
             request.entity = params
             val response = httpClient.execute(request)
+            val result = String(response.entity.content.readBytes())
             Notifications.Bus.notify(Notification(
                 "FCM push sender",
                 "FCM push sender",
-                response.toString(),
+                result,
                 NotificationType.INFORMATION
             ))
             true
@@ -72,8 +73,7 @@ class PushAction : AnAction() {
     }
 
     private fun showMessage(project: Project, message: String, isError: Boolean) {
-        val statusBar = WindowManager.getInstance()
-            ?.getStatusBar(project)
+        val statusBar = WindowManager.getInstance()?.getStatusBar(project)
         JBPopupFactory.getInstance()
             ?.createHtmlTextBalloonBuilder(message, if (isError) MessageType.ERROR else MessageType.INFO, null)
             ?.setFadeoutTime(5000)
