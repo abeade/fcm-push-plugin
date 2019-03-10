@@ -4,7 +4,9 @@ import com.abeade.plugin.fcm.push.SettingsManager.Companion.DEFAULT_PREFERENCE
 import com.abeade.plugin.fcm.push.SettingsManager.Companion.PREFERENCE_KEY
 import com.abeade.plugin.fcm.push.stetho.StethoPreferenceSearcher
 import com.intellij.ide.util.PropertiesComponent
-import com.intellij.json.JsonUtil
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.layout.panel
@@ -49,6 +51,14 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         val firebaseIdFromSharedPreference = try {
             StethoPreferenceSearcher().getSharedPreference(preferenceKey)
         } catch (e: Exception) {
+            Notifications.Bus.notify(
+                Notification(
+                    "FCM push sender",
+                    "FCM push sender",
+                    e.toString(),
+                    NotificationType.ERROR
+                )
+            )
             null
         }
         val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(PushDialogWrapper.FIREBASE_KEY).orEmpty()
@@ -67,8 +77,8 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         return panel {
             row("Firebase ID") { firebaseIdField() }
             row {
-                cell { JLabel("Data").apply { verticalAlignment = JLabel.TOP }(grow) }
-                cell { dataField() }
+                cell { JLabel("Data").apply { verticalAlignment = JLabel.TOP }(push, grow) }
+                cell { dataField(grow, grow) }
             }
             row("Remember") { rememberCheckBox() }
         }
