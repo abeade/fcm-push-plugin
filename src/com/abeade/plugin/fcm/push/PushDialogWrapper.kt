@@ -21,6 +21,7 @@ import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JTextField
 
+
 class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : DialogWrapper(true) {
 
     companion object {
@@ -48,20 +49,7 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
     override fun getDimensionServiceKey(): String? = DIMENSION_SERVICE_KEY
 
     override fun createCenterPanel(): JComponent {
-        val preferenceKey = propertiesComponent.getValue(PREFERENCE_KEY) ?: DEFAULT_PREFERENCE
-        val firebaseIdFromSharedPreference = try {
-            StethoPreferenceSearcher().getSharedPreference(preferenceKey)
-        } catch (e: Exception) {
-            Notifications.Bus.notify(
-                Notification(
-                    "FCM push sender",
-                    "FCM push sender",
-                    e.toString(),
-                    NotificationType.ERROR
-                )
-            )
-            null
-        }
+        val firebaseIdFromSharedPreference = discoverFirebaseIdUsingStetho()
         val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(PushDialogWrapper.FIREBASE_KEY).orEmpty()
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
@@ -75,13 +63,39 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         rememberCheckBox = JCheckBox().apply { isSelected = saveKey }
 
         return panel {
-            row("Firebase ID") { firebaseIdField() }
+            row("Firebase ID") {
+                firebaseIdField(pushX)
+                button("Reload") { reloadFirebaseIdFromStetho() }
+            }
             row {
                 cell { JLabel("Data").apply { verticalAlignment = JLabel.TOP }(push, grow) }
                 cell { RTextScrollPane(dataField)(grow, grow) }
             }
             row("Remember") { rememberCheckBox() }
         }.apply { minimumSize = Dimension(600, 200) }
+    }
+
+    private fun discoverFirebaseIdUsingStetho(): String? {
+        val preferenceKey = propertiesComponent.getValue(PREFERENCE_KEY) ?: DEFAULT_PREFERENCE
+        return try {
+            StethoPreferenceSearcher().getSharedPreference(preferenceKey)
+        } catch (e: Exception) {
+            Notifications.Bus.notify(
+                Notification(
+                    "FCM push sender",
+                    "FCM push sender",
+                    e.toString(),
+                    NotificationType.ERROR
+                )
+            )
+            null
+        }
+    }
+
+    private fun reloadFirebaseIdFromStetho() {
+        discoverFirebaseIdUsingStetho()?.let {
+            firebaseIdField.text = it
+        }
     }
 
     override fun doOKAction() {
