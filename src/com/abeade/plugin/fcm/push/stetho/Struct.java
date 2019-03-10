@@ -9,7 +9,7 @@
   if not, see http://www.gnu.org/licenses/.
   https://raw.githubusercontent.com/ronniebasak/JStruct/master/Struct.java
  */
-package com.abeade.plugin.fcm.push;
+package com.abeade.plugin.fcm.push.stetho;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

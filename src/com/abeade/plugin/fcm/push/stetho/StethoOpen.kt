@@ -1,5 +1,6 @@
-package com.abeade.plugin.fcm.push
+package com.abeade.plugin.fcm.push.stetho
 
+import com.abeade.plugin.fcm.push.SettingsManager
 import java.io.DataInputStream
 import java.io.IOException
 import java.io.OutputStream
@@ -8,27 +9,8 @@ import java.net.Socket
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-fun getAdbServerPortFromServerSocket(): String? {
-    val socketSpec = System.getenv("ADB_SERVER_SOCKET")
-    return when {
-        socketSpec == null -> null
-        !socketSpec.startsWith("tcp:") -> throw HumanReadableException("Invalid or unsupported socket spec '$socketSpec' specified in ADB_SERVER_SOCKET.")
-        else -> socketSpec.split(":").lastOrNull()
-    }
-}
-
-fun getAdbServerPort(): Int {
-    val defaultPort = 5037
-    val portStr = getAdbServerPortFromServerSocket() ?: System.getenv("ANDROID_ADB_SERVER_PORT")
-    return when {
-        portStr == null -> defaultPort
-        portStr.toIntOrNull() != null -> portStr.toInt()
-        else -> throw HumanReadableException("Invalid integer '$portStr' specified in ANDROID_ADB_SERVER_PORT or ADB_SERVER_SOCKET.")
-    }
-}
-
 fun stethoOpen(device: String? = null, process: String? = null, port: Int? = null): AdbSmartSocketClient {
-    val port = port ?: getAdbServerPort()
+    val port = port ?: SettingsManager.DEFAULT_ADB_PORT
     val adb = connectToDevice(device, port)
     val socketName = if (process == null) {
         findOnlyStethoSocket(device, port)
@@ -87,10 +69,11 @@ fun findOnlyStethoSocket(device: String?, port: Int?): String? {
             processNames.add(parseProcessFromStethoSocket(socketName))
         }
         when {
-            processNames.size > 1 -> throw HumanReadableException(
+            processNames.size > 1 -> throw MultipleStethoProcessesException(
                 "Multiple stetho-enabled processes available:\n" +
                         processNames.fold("") { str, item -> "\t" + str + item + "\n" } +
-                        "Use -p <process> or the environment variable STETHO_PROCESS to select one"
+                        "Use -p <process> or the environment variable STETHO_PROCESS to select one",
+                processNames
             )
             lastSocketName == null -> throw HumanReadableException("No stetho-enabled processes running")
             else -> return lastSocketName
@@ -115,7 +98,7 @@ class AdbSmartSocketClient {
     lateinit var outStream: OutputStream
     lateinit var inStream: DataInputStream
 
-    fun connect(port: Int = 5037) {
+    fun connect(port: Int = SettingsManager.DEFAULT_ADB_PORT) {
         if (!connected) {
             connected = true
             socket = Socket("127.0.0.1", port)

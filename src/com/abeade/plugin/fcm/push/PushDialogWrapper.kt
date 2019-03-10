@@ -1,5 +1,8 @@
 package com.abeade.plugin.fcm.push
 
+import com.abeade.plugin.fcm.push.SettingsManager.Companion.DEFAULT_PREFERENCE
+import com.abeade.plugin.fcm.push.SettingsManager.Companion.PREFERENCE_KEY
+import com.abeade.plugin.fcm.push.stetho.StethoPreferenceSearcher
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.json.JsonUtil
 import com.intellij.openapi.ui.DialogWrapper
@@ -19,9 +22,6 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
 
     companion object {
 
-        const val DEFAULT_PREFERENCE = "gcm_token"
-        const val PREFERENCE_KEY = "#com.abeade.plugin.fcm.push.pushdialog.preferenceKey"
-        const val AUTHORIZATION_KEY = "#com.abeade.plugin.fcm.push.pushdialog.authorization"
         private const val FIREBASE_KEY = "#com.abeade.plugin.fcm.push.pushdialog.firebase"
         private const val DATA_KEY = "#com.abeade.plugin.fcm.push.pushdialog.data"
         private const val SAVE_KEY = "#com.abeade.plugin.fcm.push.pushdialog.save"
@@ -33,7 +33,7 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         title = "FCM push sender"
     }
 
-    val importData: PushData?
+    val pushData: PushData?
         get() = data
 
     private var data: PushData? = null
@@ -45,8 +45,13 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
     override fun getDimensionServiceKey(): String? = DIMENSION_SERVICE_KEY
 
     override fun createCenterPanel(): JComponent {
-        val preferenceKey = propertiesComponent.getValue(PushDialogWrapper.PREFERENCE_KEY) ?: DEFAULT_PREFERENCE
-        val firebaseId = propertiesComponent.getValue(PushDialogWrapper.FIREBASE_KEY).orEmpty()
+        val preferenceKey = propertiesComponent.getValue(PREFERENCE_KEY) ?: DEFAULT_PREFERENCE
+        val firebaseIdFromSharedPreference = try {
+            StethoPreferenceSearcher().getSharedPreference(preferenceKey)
+        } catch (e: Exception) {
+            null
+        }
+        val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(PushDialogWrapper.FIREBASE_KEY).orEmpty()
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
         firebaseIdField = JTextField(firebaseId)
