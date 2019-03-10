@@ -22,6 +22,7 @@ class PushAction : AnAction() {
     }
 
     override fun actionPerformed(anActionEvent: AnActionEvent) {
+//        ShowSettingsUtil.getInstance().showSettingsDialog(anActionEvent.project!!, "FCM push sender")
         val dialog = PushDialogWrapper(PropertiesComponent.getInstance())
         val result = dialog.showAndGet()
         if (result) {

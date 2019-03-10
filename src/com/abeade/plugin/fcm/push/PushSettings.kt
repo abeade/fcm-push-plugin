@@ -1,9 +1,9 @@
 package com.abeade.plugin.fcm.push
 
-import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.options.SearchableConfigurable
 import javax.swing.JComponent
 
-class PushSettings : Configurable {
+class PushSettings : SearchableConfigurable {
 
     private val panel = PushSettingsPanel()
 
@@ -15,15 +15,13 @@ class PushSettings : Configurable {
 
     override fun isModified(): Boolean = panel.isModified
 
+    override fun getId(): String = "FCM push sender"
+
     override fun apply() {
         panel.apply()
     }
 
     override fun reset() {
         panel.reset()
-    }
-
-    override fun disposeUIResources() {
-        // Empty
     }
 }
