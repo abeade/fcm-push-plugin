@@ -78,18 +78,6 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
     }
 
     private fun discoverFirebaseIdUsingStetho(): String? {
-
-        fun showError(message: String) {
-            Notifications.Bus.notify(
-                Notification(
-                    "FCM push sender",
-                    "FCM push sender",
-                    message,
-                    NotificationType.ERROR
-                )
-            )
-        }
-
         var result: StethoResult
         var process: String? = null
         do {
@@ -97,13 +85,13 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
             result = try {
                 StethoResult.Success(StethoPreferenceSearcher().getSharedPreference(preferenceKey, process))
             } catch (e: MultipleStethoProcessesException) {
-                showError(e.reason)
+                showNotification(e.reason, true)
                 StethoResult.MultipleProcessError(e.processes)
             } catch (e: HumanReadableException) {
-                showError(e.reason)
+                showNotification(e.reason, true)
                 StethoResult.Error
             } catch (e: Exception) {
-                showError(e.toString())
+                showNotification(e.toString(), true)
                 StethoResult.Error
             }
             if (result is StethoResult.MultipleProcessError) {
@@ -122,10 +110,11 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
     }
 
     private fun reloadFirebaseIdFromStetho() {
+        val old = firebaseIdField.text
         firebaseIdField.text = String.EMPTY
         discoverFirebaseIdUsingStetho()?.let {
             firebaseIdField.text = it
-        }
+        } ?: run { firebaseIdField.text = old }
     }
 
     override fun doOKAction() {

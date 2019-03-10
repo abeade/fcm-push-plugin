@@ -135,7 +135,7 @@ class AdbSmartSocketClient {
             }
             status.contentEquals("FAIL".toByteArray()) -> {
                 val size = readInput(4, "fail reason")
-                val reasonLen = BigInteger(String(size, StandardCharsets.US_ASCII)).toInt()
+                val reasonLen = BigInteger(String(size, StandardCharsets.US_ASCII), 16).toInt()
                 val reason = String(readInput(reasonLen, "fail reason lean"), StandardCharsets.US_ASCII)
                 throw SelectServiceException(reason)
             }
