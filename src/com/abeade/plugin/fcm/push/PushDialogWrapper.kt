@@ -14,7 +14,7 @@ import gherkin.deps.com.google.gson.JsonParseException
 import gherkin.deps.com.google.gson.JsonParser
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
-import java.awt.Dimension
+import org.fife.ui.rtextarea.RTextScrollPane
 import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -64,9 +64,8 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(PushDialogWrapper.FIREBASE_KEY).orEmpty()
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
-        firebaseIdField = JTextField(firebaseId).apply { preferredSize = Dimension(150, 20) }
+        firebaseIdField = JTextField(firebaseId)
         dataField = RSyntaxTextArea(data).apply {
-            minimumSize = Dimension(400, 200)
             syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_JSON
             isCodeFoldingEnabled = true
             isAutoIndentEnabled = true
@@ -78,7 +77,7 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
             row("Firebase ID") { firebaseIdField() }
             row {
                 cell { JLabel("Data").apply { verticalAlignment = JLabel.TOP }(push, grow) }
-                cell { dataField(grow, grow) }
+                cell { RTextScrollPane(dataField)(grow, grow) }
             }
             row("Remember") { rememberCheckBox() }
         }
