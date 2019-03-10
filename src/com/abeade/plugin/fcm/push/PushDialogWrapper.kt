@@ -84,7 +84,8 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         do {
             val preferenceKey = propertiesComponent.getValue(PREFERENCE_KEY) ?: DEFAULT_PREFERENCE
             result = try {
-                StethoResult.Success(StethoPreferenceSearcher().getSharedPreference(preferenceKey, process))
+                StethoResult.Success(StethoPreferenceSearcher().getSharedPreference(preferenceKey, process,
+                    SettingsManager().adbPort))
             } catch (e: MultipleStethoProcessesException) {
                 showNotification(e.reason, true)
                 StethoResult.MultipleProcessError(e.processes)

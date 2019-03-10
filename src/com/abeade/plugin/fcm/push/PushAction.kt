@@ -38,7 +38,7 @@ class PushAction : AnAction() {
         val httpClient = HttpClientBuilder.create().build()
         return try {
             val request = HttpPost("https://fcm.googleapis.com/fcm/send")
-           val params = StringEntity("{\"to\":\"${pushData.firebaseId}\",\"data\":${pushData.data}}")
+            val params = StringEntity("{\"to\":\"${pushData.firebaseId}\",\"data\":${pushData.data}}")
             request.addHeader("Content-Type", "application/json")
             request.addHeader("Authorization", "key=$authorization")
             request.entity = params

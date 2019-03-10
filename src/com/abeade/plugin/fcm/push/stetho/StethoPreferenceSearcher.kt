@@ -15,10 +15,10 @@ class StethoPreferenceSearcher {
         private val commands = listOf(prefsAsUtf8, printAsUtf8)
     }
 
-    fun getSharedPreference(key: String, process: String?): String? {
-        var result: String
+    fun getSharedPreference(key: String, process: String?, port: Int?): String? {
+        val result: String
         val struct = Struct()
-        val adbSock = stethoOpen(null, process, SettingsManager().adbPort)
+        val adbSock = stethoOpen(null, process, port)
         adbSock.outStream.write("DUMP".toByteArray() + struct.pack("!i", 1))
         var enterFrame = "!".toByteArray() + struct.pack("!i", commands.size.toLong())
         for (command in commands) {
