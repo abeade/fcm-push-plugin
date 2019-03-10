@@ -15,6 +15,7 @@ import gherkin.deps.com.google.gson.JsonParser
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
+import java.awt.Dimension
 import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -80,7 +81,7 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
                 cell { RTextScrollPane(dataField)(grow, grow) }
             }
             row("Remember") { rememberCheckBox() }
-        }
+        }.apply { minimumSize = Dimension(600, 200) }
     }
 
     override fun doOKAction() {
