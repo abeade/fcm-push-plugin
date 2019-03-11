@@ -1,9 +1,8 @@
 package com.abeade.plugin.fcm.push.stetho
 
-import com.abeade.plugin.fcm.push.SettingsManager
-import com.intellij.openapi.externalSystem.service.execution.NotSupportedException
 import java.io.IOException
 import java.nio.charset.StandardCharsets
+import javax.naming.OperationNotSupportedException
 
 class StethoPreferenceSearcher {
 
@@ -49,7 +48,7 @@ class StethoPreferenceSearcher {
                     }
                 }
                 code.contentEquals("_".toByteArray()) -> {
-                    throw NotSupportedException("Input stream not supported")
+                    throw OperationNotSupportedException("Input stream not supported")
                 }
                 code.contentEquals("x".toByteArray()) -> {
                     //exitProcess(n.toInt())
