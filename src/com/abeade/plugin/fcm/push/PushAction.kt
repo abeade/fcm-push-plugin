@@ -1,9 +1,11 @@
 package com.abeade.plugin.fcm.push
 
 import com.intellij.ide.util.PropertiesComponent
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.openapi.ui.MessageType
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
@@ -26,9 +28,9 @@ class PushAction : AnAction() {
             val result = dialog.showAndGet()
             if (result) {
                 if (postToFcm(dialog.pushData!!, authorization)) {
-                    showMessage(project, "Push notification sent", false)
+                    showMessage(project, "Push notification sent", MessageType.INFO)
                 } else {
-                    showMessage(project, "Error sending push notification", true)
+                    showMessage(project, "Error sending push notification", MessageType.ERROR)
                 }
             }
         }
@@ -44,10 +46,10 @@ class PushAction : AnAction() {
             request.entity = params
             val response = httpClient.execute(request)
             val result = String(response.entity.content.readBytes())
-            showNotification(result, false)
+            showNotification(result, NotificationType.INFORMATION)
             true
         } catch (ex: Exception) {
-            showNotification(ex.toString(), true)
+            showNotification(ex.toString(), NotificationType.ERROR)
             false
         }
     }

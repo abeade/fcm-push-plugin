@@ -11,6 +11,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.json.JsonLanguage
 import com.intellij.lang.Language
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
@@ -106,13 +107,13 @@ class PushDialogWrapper(
                 StethoResult.Success(StethoPreferenceSearcher().getSharedPreference(preferenceKey, process,
                     SettingsManager().adbPort))
             } catch (e: MultipleStethoProcessesException) {
-                showNotification(e.reason, true)
+                showNotification(e.reason, NotificationType.WARNING)
                 StethoResult.MultipleProcessError(e.processes)
             } catch (e: HumanReadableException) {
-                showNotification(e.reason, true)
+                showNotification(e.reason, NotificationType.ERROR)
                 StethoResult.Error
             } catch (e: Exception) {
-                showNotification(e.toString(), true)
+                showNotification(e.toString(), NotificationType.ERROR)
                 StethoResult.Error
             }
             if (result is StethoResult.MultipleProcessError) {
