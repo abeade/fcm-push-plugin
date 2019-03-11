@@ -68,7 +68,7 @@ class PushAction : AnAction() {
         }
     }
 
-    data class FCMResult(
+    private data class FCMResult(
         val success: Boolean,
         val message: String?
     )
