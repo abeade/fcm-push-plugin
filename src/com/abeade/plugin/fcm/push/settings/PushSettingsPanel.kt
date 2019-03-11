@@ -1,4 +1,4 @@
-package com.abeade.plugin.fcm.push
+package com.abeade.plugin.fcm.push.settings
 
 import com.intellij.ui.layout.LCFlags
 import com.intellij.ui.layout.panel
@@ -51,7 +51,7 @@ class PushSettingsPanel : JPanel() {
 
     private fun createUI() {
         add(
-            panel(LCFlags.fillX, title = "Android Components") {
+            panel(LCFlags.fillX, title = "General settings") {
                 row("ADB Port") { adbPortField() }
                 row("Shared preference Key") { preferenceKeyField() }
                 row("") { label("Shared preference where the app has stored the Firebase Registration ID") }

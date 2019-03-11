@@ -1,9 +1,9 @@
-package com.abeade.plugin.fcm.push
+package com.abeade.plugin.fcm.push.settings
 
 import com.intellij.openapi.options.SearchableConfigurable
 import javax.swing.JComponent
 
-class PushSettings : SearchableConfigurable {
+class PushSettingsConfigurable : SearchableConfigurable {
 
     private val panel = PushSettingsPanel()
 

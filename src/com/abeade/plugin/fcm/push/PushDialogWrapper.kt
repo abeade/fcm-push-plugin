@@ -1,7 +1,7 @@
 package com.abeade.plugin.fcm.push
 
-import com.abeade.plugin.fcm.push.SettingsManager.Companion.DEFAULT_PREFERENCE
-import com.abeade.plugin.fcm.push.SettingsManager.Companion.PREFERENCE_KEY
+import com.abeade.plugin.fcm.push.settings.DEFAULT_PREFERENCE_KEY
+import com.abeade.plugin.fcm.push.settings.SettingsManager
 import com.abeade.plugin.fcm.push.stetho.HumanReadableException
 import com.abeade.plugin.fcm.push.stetho.MultipleStethoProcessesException
 import com.abeade.plugin.fcm.push.stetho.StethoPreferenceSearcher
@@ -99,13 +99,14 @@ class PushDialogWrapper(
     }
 
     private fun discoverFirebaseIdUsingStetho(): String? {
+        val settingsManager = SettingsManager()
         var result: StethoResult
         var process: String? = null
         do {
-            val preferenceKey = propertiesComponent.getValue(PREFERENCE_KEY) ?: DEFAULT_PREFERENCE
+            val preferenceKey = settingsManager.preferenceKey ?: DEFAULT_PREFERENCE_KEY
             result = try {
                 StethoResult.Success(StethoPreferenceSearcher().getSharedPreference(preferenceKey, process,
-                    SettingsManager().adbPort))
+                    settingsManager.adbPort))
             } catch (e: MultipleStethoProcessesException) {
                 showNotification(e.reason, NotificationType.WARNING)
                 StethoResult.MultipleProcessError(e.processes)

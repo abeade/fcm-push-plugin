@@ -1,5 +1,6 @@
 package com.abeade.plugin.fcm.push
 
+import com.abeade.plugin.fcm.push.settings.SettingsManager
 import com.google.gson.Gson
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification.NotificationType

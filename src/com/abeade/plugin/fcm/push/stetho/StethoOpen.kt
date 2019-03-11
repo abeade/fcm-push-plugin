@@ -1,6 +1,7 @@
 package com.abeade.plugin.fcm.push.stetho
 
-import com.abeade.plugin.fcm.push.SettingsManager
+import com.abeade.plugin.fcm.push.settings.DEFAULT_ADB_PORT
+import com.abeade.plugin.fcm.push.settings.SettingsManager
 import java.io.DataInputStream
 import java.io.IOException
 import java.io.OutputStream
@@ -10,7 +11,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 
 fun stethoOpen(device: String? = null, process: String? = null, port: Int? = null): AdbSmartSocketClient {
-    val port = port ?: SettingsManager.DEFAULT_ADB_PORT
+    val port = port ?: DEFAULT_ADB_PORT
     val adb = connectToDevice(device, port)
     val socketName = if (process == null) {
         findOnlyStethoSocket(device, port)
@@ -97,7 +98,7 @@ class AdbSmartSocketClient {
     lateinit var outStream: OutputStream
     lateinit var inStream: DataInputStream
 
-    fun connect(port: Int = SettingsManager.DEFAULT_ADB_PORT) {
+    fun connect(port: Int = DEFAULT_ADB_PORT) {
         if (!connected) {
             connected = true
             socket = Socket("127.0.0.1", port)
