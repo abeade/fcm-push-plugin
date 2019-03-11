@@ -11,7 +11,7 @@ class PushSettings : SearchableConfigurable {
 
     override fun getHelpTopic(): String? = "FCM push sender"
 
-    override fun createComponent(): JComponent? = panel.createPanel()
+    override fun createComponent(): JComponent? = panel
 
     override fun isModified(): Boolean = panel.isModified
 
