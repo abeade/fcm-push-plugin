@@ -24,7 +24,10 @@ import javax.swing.JLabel
 import javax.swing.JTextField
 
 
-class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : DialogWrapper(true) {
+class PushDialogWrapper(
+    private val propertiesComponent: PropertiesComponent,
+    private val project: Project
+) : DialogWrapper(true) {
 
     companion object {
 
@@ -59,7 +62,7 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
         firebaseIdField = JTextField(firebaseId)
-        dataField = CustomEditorField(JsonLanguage.INSTANCE, null, data).apply {
+        dataField = CustomEditorField(JsonLanguage.INSTANCE, project, data).apply {
             setOneLineMode(false)
         }
         rememberCheckBox = JCheckBox().apply { isSelected = saveKey }
@@ -89,8 +92,7 @@ class PushDialogWrapper(private val propertiesComponent: PropertiesComponent) : 
             settings.isAutoCodeFoldingEnabled = true
             settings.isFoldingOutlineShown = true
             settings.isAllowSingleLogicalLineFolding = true
-            settings.isRightMarginShown=true
-            settings.setTabSize(4)
+            settings.isRightMarginShown = true
             return editor
         }
     }

@@ -22,7 +22,7 @@ class PushAction : AnAction() {
         if (authorization.isNullOrBlank()) {
             ShowSettingsUtil.getInstance().showSettingsDialog(project, "FCM push sender")
         } else {
-            val dialog = PushDialogWrapper(PropertiesComponent.getInstance())
+            val dialog = PushDialogWrapper(PropertiesComponent.getInstance(), project)
             val result = dialog.showAndGet()
             if (result) {
                 if (postToFcm(dialog.pushData!!, authorization)) {
