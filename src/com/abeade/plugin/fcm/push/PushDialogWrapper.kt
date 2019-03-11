@@ -14,15 +14,13 @@ import com.intellij.lang.Language
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.LanguageTextField
 import com.intellij.ui.layout.panel
 import java.awt.Dimension
-import javax.swing.JCheckBox
-import javax.swing.JComponent
-import javax.swing.JLabel
-import javax.swing.JTextField
+import javax.swing.*
 
 
 class PushDialogWrapper(
@@ -63,9 +61,7 @@ class PushDialogWrapper(
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
         firebaseIdField = JTextField(firebaseId)
-        dataField = CustomEditorField(JsonLanguage.INSTANCE, project, data).apply {
-            setOneLineMode(false)
-        }
+        dataField = CustomEditorField(JsonLanguage.INSTANCE, project, data)
         rememberCheckBox = JCheckBox().apply { isSelected = saveKey }
 
         return panel {
@@ -73,6 +69,7 @@ class PushDialogWrapper(
                 firebaseIdField(pushX)
                 button("Search with Stetho") { reloadFirebaseIdFromStetho() }
             }
+            //row("Template") { ComboBox<String>(arrayOf("", "one", "two"))(pushX) }
             row {
                 cell { JLabel("Data").apply { verticalAlignment = JLabel.TOP }(push, grow) }
                 cell { dataField(grow, grow) }
@@ -85,6 +82,7 @@ class PushDialogWrapper(
 
         override fun createEditor(): EditorEx {
             val editor = super.createEditor()
+            editor.isOneLineMode = false
             editor.setVerticalScrollbarVisible(true)
             editor.setHorizontalScrollbarVisible(true)
 
@@ -92,8 +90,12 @@ class PushDialogWrapper(
             settings.isLineNumbersShown = true
             settings.isAutoCodeFoldingEnabled = true
             settings.isFoldingOutlineShown = true
-            settings.isAllowSingleLogicalLineFolding = true
             settings.isRightMarginShown = true
+            settings.isUseCustomSoftWrapIndent = true
+            settings.customSoftWrapIndent = 4
+            settings.isIndentGuidesShown = true
+            settings.isShowIntentionBulb = true
+            settings.setTabSize(4)
             return editor
         }
     }
