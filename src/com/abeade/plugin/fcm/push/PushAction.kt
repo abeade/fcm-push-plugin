@@ -1,5 +1,6 @@
 package com.abeade.plugin.fcm.push
 
+import com.google.gson.Gson
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnAction
@@ -25,18 +26,19 @@ class PushAction : AnAction() {
             ShowSettingsUtil.getInstance().showSettingsDialog(project, "FCM push sender")
         } else {
             val dialog = PushDialogWrapper(PropertiesComponent.getInstance(), project)
-            val result = dialog.showAndGet()
-            if (result) {
-                if (postToFcm(dialog.pushData!!, authorization)) {
+            if (dialog.showAndGet()) {
+                val result = postToFcm(dialog.pushData!!, authorization)
+                if (result.success) {
                     showMessage(project, "Push notification sent", MessageType.INFO)
                 } else {
-                    showMessage(project, "Error sending push notification", MessageType.ERROR)
+                    val msg = result.message ?: String.EMPTY
+                    showMessage(project, "Error sending push notification $msg", MessageType.ERROR)
                 }
             }
         }
     }
 
-    private fun postToFcm(pushData: PushData, authorization: String): Boolean {
+    private fun postToFcm(pushData: PushData, authorization: String): FCMResult {
         val httpClient = HttpClientBuilder.create().build()
         return try {
             val request = HttpPost("https://fcm.googleapis.com/fcm/send")
@@ -46,11 +48,28 @@ class PushAction : AnAction() {
             request.entity = params
             val response = httpClient.execute(request)
             val result = String(response.entity.content.readBytes())
-            showNotification(result, NotificationType.INFORMATION)
-            true
+            val fcmResponse = try {
+                Gson().fromJson<FCMResponse>(result, FCMResponse::class.java)
+            } catch (e: Exception) {
+                null
+            }
+            if (fcmResponse != null && fcmResponse.failure > 0) {
+                val error = fcmResponse.results.firstOrNull()?.error
+                showNotification(error ?: result, NotificationType.ERROR)
+                FCMResult(false, error)
+            } else {
+                val message = fcmResponse?.let { "${it.success} push notification sent" }
+                showNotification(message ?: result, NotificationType.INFORMATION)
+                FCMResult(true, message)
+            }
         } catch (ex: Exception) {
             showNotification(ex.toString(), NotificationType.ERROR)
-            false
+            FCMResult(false, null)
         }
     }
+
+    data class FCMResult(
+        val success: Boolean,
+        val message: String?
+    )
 }
