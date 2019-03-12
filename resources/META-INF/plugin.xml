@@ -13,6 +13,7 @@
       <b>0.3</b>
       <ul>
         <li>Parses FCM response to show feedback when sending message fails</li>
+        <li>Adds templates to store and re-use push messages data</li>
       </ul>
       <b>0.2</b>
       <ul>
@@ -33,10 +34,10 @@
   <depends>com.intellij.modules.java</depends>
 
   <extensions defaultExtensionNs="com.intellij">
-    <applicationConfigurable instance="com.abeade.plugin.fcm.push.settings.PushSettingsConfigurable" groupId="tools"
-                             groupWeight="130" displayName="FCM push sender"/>
-    <applicationService serviceInterface="com.abeade.plugin.fcm.push.settings.PushComponent"
-                        serviceImplementation="com.abeade.plugin.fcm.push.settings.PushComponent"/>
+    <projectConfigurable instance="com.abeade.plugin.fcm.push.settings.PushSettingsConfigurable" groupId="tools"
+                         groupWeight="130" displayName="FCM push sender"/>
+    <projectService serviceInterface="com.abeade.plugin.fcm.push.settings.PushComponent"
+                    serviceImplementation="com.abeade.plugin.fcm.push.settings.PushComponent"/>
   </extensions>
 
   <actions>

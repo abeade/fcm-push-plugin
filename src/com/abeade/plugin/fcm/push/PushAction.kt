@@ -27,7 +27,7 @@ class PushAction : AnAction() {
 
     override fun actionPerformed(anActionEvent: AnActionEvent) {
         val project = anActionEvent.project!!
-        val authorization = SettingsManager().authorization
+        val authorization = SettingsManager(project).authorization
         if (authorization.isNullOrBlank()) {
             ShowSettingsUtil.getInstance().showSettingsDialog(project, "FCM push sender")
         } else {

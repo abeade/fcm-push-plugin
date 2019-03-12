@@ -1,11 +1,12 @@
 package com.abeade.plugin.fcm.push.settings
 
 import com.intellij.openapi.options.SearchableConfigurable
+import com.intellij.openapi.project.Project
 import javax.swing.JComponent
 
-class PushSettingsConfigurable : SearchableConfigurable {
+class PushSettingsConfigurable(project: Project) : SearchableConfigurable {
 
-    private val panel = PushSettingsPanel()
+    private val panel = PushSettingsPanel(project)
 
     override fun getDisplayName(): String? = "FCM push sender"
 

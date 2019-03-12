@@ -5,8 +5,9 @@ import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName
 import com.intellij.ide.passwordSafe.PasswordSafe
+import com.intellij.openapi.project.Project
 
-class SettingsManager {
+class SettingsManager(project: Project) {
 
     companion object {
 
@@ -14,7 +15,7 @@ class SettingsManager {
         const val AUTHORIZATION_KEY = "#com.abeade.plugin.fcm.push.pushdialog.authorization"
     }
 
-    private val pushComponent: PushComponent = PushComponent.getInstance()
+    private val pushComponent: PushComponent = PushComponent.getInstance(project)
     private val credentialAttributes: CredentialAttributes =
         CredentialAttributes(generateServiceName(
             SUBSYSTEM,
@@ -35,4 +36,6 @@ class SettingsManager {
     var adbPort: Int?
         get() = pushComponent.settings.port
         set(value) { pushComponent.settings.port = value }
+
+    val templates = pushComponent.settings.templates
 }

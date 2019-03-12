@@ -1,7 +1,6 @@
 package com.abeade.plugin.fcm.push.stetho
 
-import com.abeade.plugin.fcm.push.settings.DEFAULT_ADB_PORT
-import com.abeade.plugin.fcm.push.settings.SettingsManager
+import com.abeade.plugin.fcm.push.model.DEFAULT_ADB_PORT
 import java.io.DataInputStream
 import java.io.IOException
 import java.io.OutputStream

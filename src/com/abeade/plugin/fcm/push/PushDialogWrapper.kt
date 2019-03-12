@@ -1,7 +1,7 @@
 package com.abeade.plugin.fcm.push
 
 import com.abeade.plugin.fcm.push.model.PushData
-import com.abeade.plugin.fcm.push.settings.DEFAULT_PREFERENCE_KEY
+import com.abeade.plugin.fcm.push.model.DEFAULT_PREFERENCE_KEY
 import com.abeade.plugin.fcm.push.settings.SettingsManager
 import com.abeade.plugin.fcm.push.stetho.HumanReadableException
 import com.abeade.plugin.fcm.push.stetho.MultipleStethoProcessesException
@@ -14,15 +14,14 @@ import com.google.gson.JsonParser
 import com.intellij.icons.AllIcons
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.json.JsonLanguage
-import com.intellij.lang.Language
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.ui.LanguageTextField
 import com.intellij.ui.layout.panel
 import java.awt.Dimension
+import java.awt.event.ItemEvent
 import javax.swing.*
 
 
@@ -55,24 +54,38 @@ class PushDialogWrapper(
     private lateinit var firebaseIdField: JTextField
     private lateinit var dataField: CustomEditorField
     private lateinit var rememberCheckBox: JCheckBox
+    private lateinit var templatesComboBox: ComboBox<String>
 
     override fun getDimensionServiceKey(): String? = DIMENSION_SERVICE_KEY
 
     override fun createCenterPanel(): JComponent {
+        val settingsManager = SettingsManager(project)
         val firebaseIdFromSharedPreference = discoverFirebaseIdUsingStetho()
         val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(PushDialogWrapper.FIREBASE_KEY).orEmpty()
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
+        val templates = listOf("") + settingsManager.templates.map { it.name }.toList()
         firebaseIdField = JTextField(firebaseId)
         dataField = CustomEditorField(JsonLanguage.INSTANCE, project, data)
         rememberCheckBox = JCheckBox().apply { isSelected = saveKey }
+        templatesComboBox = ComboBox(templates.toTypedArray()).apply { addItemListener { event ->
+            if (event.stateChange == ItemEvent.SELECTED) {
+                if (selectedIndex - 1 in 0 until settingsManager.templates.size) {
+                    dataField.text = settingsManager.templates[selectedIndex - 1].data
+                } else {
+                    dataField.text = data
+                }
+            }
+        } }
 
         return panel {
             row("Firebase ID") {
                 firebaseIdField(pushX)
                 button("Search with Stetho") { reloadFirebaseIdFromStetho() }
             }
-            //row("Template") { ComboBox<String>(arrayOf("", "one", "two"))(pushX) }
+            if (templates.size > 1) {
+                row("Template") { templatesComboBox(pushX) }
+            }
             row {
                 cell { JLabel("Data").apply { verticalAlignment = JLabel.TOP }(push, grow) }
                 cell { dataField(grow, grow) }
@@ -82,7 +95,7 @@ class PushDialogWrapper(
     }
 
     private fun discoverFirebaseIdUsingStetho(): String? {
-        val settingsManager = SettingsManager()
+        val settingsManager = SettingsManager(project)
         var result: StethoResult
         var process: String? = null
         val preferenceKey = settingsManager.preferenceKey ?: DEFAULT_PREFERENCE_KEY
