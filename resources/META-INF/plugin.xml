@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.abeade.plugin.fcm.push</id>
   <name>FCM push sender</name>
-  <version>0.2</version>
+  <version>0.3</version>
   <vendor email="albert.beade@letgo.com" url="http://www.letgo.com">letgo</vendor>
 
   <description><![CDATA[
@@ -10,14 +10,18 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <b>0.2</b>
-        <ul>
-            <li>Allows to select the stetho-enabled process when more than one exists</li>
-        </ul>
-        <b>0.1</b>
-        <ul>
-            <li>First version</li>
-        </ul>
+      <b>0.3</b>
+      <ul>
+        <li>Parses FCM response to show feedback when sending message fails</li>
+      </ul>
+      <b>0.2</b>
+      <ul>
+        <li>Allows to select the stetho-enabled process when more than one exists</li>
+      </ul>
+      <b>0.1</b>
+      <ul>
+        <li>First version</li>
+      </ul>
     ]]>
   </change-notes>
 
