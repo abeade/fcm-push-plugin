@@ -85,11 +85,14 @@ class PushDialogWrapper(
         val settingsManager = SettingsManager()
         var result: StethoResult
         var process: String? = null
+        val preferenceKey = settingsManager.preferenceKey ?: DEFAULT_PREFERENCE_KEY
         do {
-            val preferenceKey = settingsManager.preferenceKey ?: DEFAULT_PREFERENCE_KEY
             result = try {
-                StethoResult.Success(StethoPreferenceSearcher().getSharedPreference(preferenceKey, process,
-                    settingsManager.adbPort))
+                val id = StethoPreferenceSearcher().getSharedPreference(preferenceKey, process, settingsManager.adbPort)
+                if (id.isNullOrEmpty()) {
+                    showNotification("Shared preference $preferenceKey not found in process $process", NotificationType.ERROR)
+                }
+                StethoResult.Success(id)
             } catch (e: MultipleStethoProcessesException) {
                 showNotification(e.reason, NotificationType.WARNING)
                 StethoResult.MultipleProcessError(e.processes)

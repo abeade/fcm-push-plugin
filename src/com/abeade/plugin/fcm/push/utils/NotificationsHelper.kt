@@ -10,6 +10,9 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.awt.RelativePoint
 
+private const val GROUP_DISPLAYED_ID = "FCM push sender"
+private const val TITLE = "FCM push sender"
+
 fun showMessage(project: Project, message: String, messageType: MessageType) {
     val statusBar = WindowManager.getInstance()?.getStatusBar(project)
     JBPopupFactory.getInstance()
@@ -22,8 +25,8 @@ fun showMessage(project: Project, message: String, messageType: MessageType) {
 fun showNotification(message: String, notificationType: NotificationType) {
     Notifications.Bus.notify(
         Notification(
-            "FCM push sender",
-            "FCM push sender",
+            GROUP_DISPLAYED_ID,
+            TITLE,
             message,
             notificationType
         )
