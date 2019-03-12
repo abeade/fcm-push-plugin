@@ -1,6 +1,6 @@
 package com.abeade.plugin.fcm.push.settings
 
-import com.abeade.plugin.fcm.push.EMPTY
+import com.abeade.plugin.fcm.push.utils.EMPTY
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName

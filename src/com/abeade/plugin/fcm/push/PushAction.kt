@@ -1,6 +1,11 @@
 package com.abeade.plugin.fcm.push
 
+import com.abeade.plugin.fcm.push.model.FCMResponse
+import com.abeade.plugin.fcm.push.model.PushData
 import com.abeade.plugin.fcm.push.settings.SettingsManager
+import com.abeade.plugin.fcm.push.utils.EMPTY
+import com.abeade.plugin.fcm.push.utils.showMessage
+import com.abeade.plugin.fcm.push.utils.showNotification
 import com.google.gson.Gson
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification.NotificationType
@@ -33,7 +38,11 @@ class PushAction : AnAction() {
                     showMessage(project, "Push notification sent", MessageType.INFO)
                 } else {
                     val msg = result.message ?: String.EMPTY
-                    showMessage(project, "Error sending push notification $msg", MessageType.ERROR)
+                    showMessage(
+                        project,
+                        "Error sending push notification $msg",
+                        MessageType.ERROR
+                    )
                 }
             }
         }

@@ -1,10 +1,14 @@
 package com.abeade.plugin.fcm.push
 
+import com.abeade.plugin.fcm.push.model.PushData
 import com.abeade.plugin.fcm.push.settings.DEFAULT_PREFERENCE_KEY
 import com.abeade.plugin.fcm.push.settings.SettingsManager
 import com.abeade.plugin.fcm.push.stetho.HumanReadableException
 import com.abeade.plugin.fcm.push.stetho.MultipleStethoProcessesException
 import com.abeade.plugin.fcm.push.stetho.StethoPreferenceSearcher
+import com.abeade.plugin.fcm.push.utils.CustomEditorField
+import com.abeade.plugin.fcm.push.utils.EMPTY
+import com.abeade.plugin.fcm.push.utils.showNotification
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
 import com.intellij.icons.AllIcons
@@ -14,7 +18,6 @@ import com.intellij.lang.Language
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.LanguageTextField
@@ -78,28 +81,6 @@ class PushDialogWrapper(
         }.apply { minimumSize = Dimension(600, 200) }
     }
 
-    class CustomEditorField(language: Language, project: Project?, s: String) : LanguageTextField(language, project, s) {
-
-        override fun createEditor(): EditorEx {
-            val editor = super.createEditor()
-            editor.isOneLineMode = false
-            editor.setVerticalScrollbarVisible(true)
-            editor.setHorizontalScrollbarVisible(true)
-
-            val settings = editor.settings
-            settings.isLineNumbersShown = true
-            settings.isAutoCodeFoldingEnabled = true
-            settings.isFoldingOutlineShown = true
-            settings.isRightMarginShown = true
-            settings.isUseCustomSoftWrapIndent = true
-            settings.customSoftWrapIndent = 4
-            settings.isIndentGuidesShown = true
-            settings.isShowIntentionBulb = true
-            settings.setTabSize(4)
-            return editor
-        }
-    }
-
     private fun discoverFirebaseIdUsingStetho(): String? {
         val settingsManager = SettingsManager()
         var result: StethoResult
@@ -143,7 +124,10 @@ class PushDialogWrapper(
     }
 
     override fun doOKAction() {
-        data = PushData(firebaseIdField.text, JsonParser().parse(dataField.text).toString())
+        data = PushData(
+            firebaseIdField.text,
+            JsonParser().parse(dataField.text).toString()
+        )
         val remember = rememberCheckBox.isSelected
         propertiesComponent.setValue(FIREBASE_KEY, if (remember) firebaseIdField.text else null)
         propertiesComponent.setValue(DATA_KEY, if (remember) dataField.text else null)

@@ -1,4 +1,4 @@
-package com.abeade.plugin.fcm.push
+package com.abeade.plugin.fcm.push.model
 
 data class PushData(
     val firebaseId: String,

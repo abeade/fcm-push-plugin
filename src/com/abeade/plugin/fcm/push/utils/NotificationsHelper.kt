@@ -1,4 +1,4 @@
-package com.abeade.plugin.fcm.push
+package com.abeade.plugin.fcm.push.utils
 
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
