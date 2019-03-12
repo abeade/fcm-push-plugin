@@ -7,22 +7,21 @@ import com.intellij.ui.LanguageTextField
 
 class CustomEditorField(language: Language, project: Project?, s: String) : LanguageTextField(language, project, s) {
 
-    override fun createEditor(): EditorEx {
-        val editor = super.createEditor()
-        editor.isOneLineMode = false
-        editor.setVerticalScrollbarVisible(true)
-        editor.setHorizontalScrollbarVisible(true)
-
-        val settings = editor.settings
-        settings.isLineNumbersShown = true
-        settings.isAutoCodeFoldingEnabled = true
-        settings.isFoldingOutlineShown = true
-        settings.isRightMarginShown = true
-        settings.isUseCustomSoftWrapIndent = true
-        settings.customSoftWrapIndent = 4
-        settings.isIndentGuidesShown = true
-        settings.isShowIntentionBulb = true
-        settings.setTabSize(4)
-        return editor
-    }
+    override fun createEditor(): EditorEx =
+        super.createEditor().apply {
+            isOneLineMode = false
+            setVerticalScrollbarVisible(true)
+            setHorizontalScrollbarVisible(true)
+            settings.apply {
+                isLineNumbersShown = true
+                isAutoCodeFoldingEnabled = true
+                isFoldingOutlineShown = true
+                isRightMarginShown = true
+                isUseCustomSoftWrapIndent = true
+                customSoftWrapIndent = 4
+                isIndentGuidesShown = true
+                isShowIntentionBulb = true
+                setTabSize(4)
+            }
+        }
 }
