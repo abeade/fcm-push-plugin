@@ -4,6 +4,11 @@ import com.abeade.plugin.fcm.push.model.PushTemplate
 import com.abeade.plugin.fcm.push.utils.CustomEditorField
 import com.abeade.plugin.fcm.push.utils.EMPTY
 import com.abeade.plugin.fcm.push.utils.addTextChangeListener
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
+import com.google.gson.stream.JsonReader
+import com.intellij.icons.AllIcons
 import com.intellij.json.JsonLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CollectionListModel
@@ -13,13 +18,18 @@ import com.intellij.ui.components.JBList
 import com.intellij.ui.layout.LCFlags
 import com.intellij.ui.layout.panel
 import java.awt.BorderLayout
+import java.io.File
 import java.text.NumberFormat
-import javax.swing.JFormattedTextField
-import javax.swing.JPanel
-import javax.swing.JTextField
-import javax.swing.ListSelectionModel
+import javax.swing.*
 import javax.swing.event.DocumentListener
+import javax.swing.filechooser.FileNameExtensionFilter
 import javax.swing.text.NumberFormatter
+import java.io.FileWriter
+import com.intellij.internal.statistic.service.fus.beans.FSContent.fromJson
+import org.codehaus.plexus.util.FileUtils.filename
+import java.io.FileReader
+import javax.swing.JOptionPane
+import javax.swing.JFrame
 
 class PushSettingsPanel(project: Project) : JPanel() {
 
@@ -50,13 +60,23 @@ class PushSettingsPanel(project: Project) : JPanel() {
         setAddAction {
             templatesListModel.add(PushTemplate("Unnamed", String.EMPTY))
             templatesList.selectedIndex = templatesList.itemsCount - 1
+            exportButton.isEnabled = true
         }
         setRemoveAction {
             templatesListModel.remove(templatesList.selectedIndex)
+            exportButton.isEnabled = !templatesListModel.isEmpty
         }
     }
     private val templateNameField = JTextField()
     private val templateDataField = CustomEditorField(JsonLanguage.INSTANCE, project, String.EMPTY)
+    private val exportButton = JButton("Export").apply {
+        icon = AllIcons.Actions.Download
+        addActionListener { onExportTemplates() }
+    }
+    private val importButton = JButton("Import").apply {
+        icon = AllIcons.Actions.Upload
+        addActionListener { onImportTemplates() }
+    }
 
     init {
         val format = NumberFormat.getInstance().apply {
@@ -94,18 +114,24 @@ class PushSettingsPanel(project: Project) : JPanel() {
         adbPortField.text = settingsManager.adbPort!!.toString()
         templatesListModel.removeAll()
         templatesListModel.add(settingsManager.templates.map { it.copy() })
-        if (settingsManager.templates.isEmpty()) {
+        updateUIState()
+    }
+
+    private fun updateUIState() {
+        if (templatesListModel.isEmpty) {
             disableTemplate()
+            exportButton.isEnabled = false
         } else {
             enableTemplate()
             templatesList.selectedIndex = 0
-            showTemplate(settingsManager.templates.firstOrNull())
+            showTemplate(templatesListModel.items.firstOrNull())
+            exportButton.isEnabled = true
         }
     }
 
     private fun createUI() {
         add(createGeneralSettingsPannel(), BorderLayout.PAGE_START)
-        add(JBSplitter(0.3f).apply {
+        add(JBSplitter(false,0.3f, 0.22f, 0.8f).apply {
             firstComponent = createTemplatesListPanel()
             secondComponent = createAndroidComponentsPanel()
         }, BorderLayout.CENTER)
@@ -122,6 +148,12 @@ class PushSettingsPanel(project: Project) : JPanel() {
     private fun createTemplatesListPanel() =
         panel(LCFlags.fillX, title = "Templates") {
             row { toolbarDecorator.createPanel()(growX, growY, pushY) }
+            row {
+                cell {
+                    importButton(growY)
+                    exportButton(growY)
+                }
+            }
         }
 
     private fun createAndroidComponentsPanel() =
@@ -172,5 +204,63 @@ class PushSettingsPanel(project: Project) : JPanel() {
 
     private fun onTemplateChange(text: String) {
         templatesListModel.items[templatesList.selectedIndex].data = text
+    }
+
+    private fun onImportTemplates() {
+        val fileDialog = JFileChooser().apply {
+            fileSelectionMode = JFileChooser.FILES_ONLY
+            fileFilter = FileNameExtensionFilter("JSON Files", "json", "json")
+            isAcceptAllFileFilterUsed = false
+            dialogTitle = "Select plugin templates file to load"
+        }
+        if (fileDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION && fileDialog.selectedFile.exists()) {
+            val templatesListType = object : TypeToken<List<PushTemplate>>() { }.type
+            try {
+                val gson = GsonBuilder().create()
+                val reader = JsonReader(FileReader(fileDialog.selectedFile))
+                val data = gson.fromJson<List<PushTemplate>>(reader, templatesListType)
+                if (data != null && data.isNotEmpty()) {
+                    templatesListModel.removeAll()
+                    templatesListModel.add(data)
+                    updateUIState()
+                    JOptionPane.showMessageDialog(
+                        JFrame(), "Templates imported successfully", "Templates import",
+                        JOptionPane.INFORMATION_MESSAGE
+                    )
+                } else {
+                    JOptionPane.showMessageDialog(JFrame(), "No templates found", "Templates import",
+                        JOptionPane.ERROR_MESSAGE)
+                }
+            } catch (e: Exception) {
+                JOptionPane.showMessageDialog(JFrame(), "Error importing templates", "Templates import",
+                    JOptionPane.ERROR_MESSAGE)
+            }
+        }
+    }
+
+    private fun onExportTemplates() {
+        val fileDialog = JFileChooser().apply {
+            fileSelectionMode = JFileChooser.FILES_ONLY
+            fileFilter = FileNameExtensionFilter("JSON Files", "json", "json")
+            isAcceptAllFileFilterUsed = false
+            dialogTitle = "Select plugin templates file to save"
+        }
+        if (fileDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            var file = fileDialog.selectedFile
+            if (!file.absolutePath.endsWith("json")) {
+                file = File("$file.json")
+            }
+            try {
+                FileWriter(file).use { writer ->
+                    val gson = GsonBuilder().create()
+                    gson.toJson(templatesListModel.items, writer)
+                }
+                JOptionPane.showMessageDialog(JFrame(), "Templates exported successfully", "Templates export",
+                    JOptionPane.INFORMATION_MESSAGE)
+            } catch (e: Exception) {
+                JOptionPane.showMessageDialog(JFrame(), "Error exporting templates", "Templates export",
+                    JOptionPane.ERROR_MESSAGE)
+            }
+        }
     }
 }
