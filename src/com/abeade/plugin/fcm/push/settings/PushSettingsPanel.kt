@@ -92,6 +92,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
         preferenceKeyField.text = settingsManager.preferenceKey
         authorizationField.text = settingsManager.authorization
         adbPortField.text = settingsManager.adbPort!!.toString()
+        templatesListModel.removeAll()
         templatesListModel.add(settingsManager.templates.map { it.copy() })
         if (settingsManager.templates.isEmpty()) {
             disableTemplate()
