@@ -37,6 +37,9 @@ class PushSettingsPanel(project: Project) : JPanel() {
     private var templateDocumentListener: com.intellij.openapi.editor.event.DocumentListener? = null
 
     private val settingsManager = SettingsManager(project)
+    private val useStethoField = JCheckBox().apply {
+        addActionListener { preferenceKeyField.isEnabled = isSelected }
+    }
     private val preferenceKeyField = JTextField()
     private val authorizationField = JTextField()
     private val adbPortField: JFormattedTextField
@@ -95,12 +98,14 @@ class PushSettingsPanel(project: Project) : JPanel() {
     }
 
     val isModified: Boolean
-        get() = preferenceKeyField.text != settingsManager.preferenceKey ||
+        get() = useStethoField.isSelected != settingsManager.useStetho ||
+                preferenceKeyField.text != settingsManager.preferenceKey ||
                 authorizationField.text != settingsManager.authorization ||
                 adbPortField.text != settingsManager.adbPort.toString() ||
                 settingsManager.templates != templatesListModel.items
 
     fun apply() {
+        settingsManager.useStetho = useStethoField.isSelected
         settingsManager.authorization = authorizationField.text
         settingsManager.preferenceKey = preferenceKeyField.text
         settingsManager.adbPort = Integer.parseInt(adbPortField.text)
@@ -109,6 +114,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
     }
 
     fun reset() {
+        useStethoField.isSelected = settingsManager.useStetho
         preferenceKeyField.text = settingsManager.preferenceKey
         authorizationField.text = settingsManager.authorization
         adbPortField.text = settingsManager.adbPort.toString()
@@ -140,6 +146,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
     private fun createGeneralSettingsPannel() =
         panel(LCFlags.fillX, title = "General settings") {
             row("ADB Port") { adbPortField() }
+            row("Use Stetho plugin") { useStethoField() }
             row("Shared preference Key") { preferenceKeyField() }
             row("") { label("Shared preference where the app has stored the Firebase Registration ID") }
             row("Authorization Key") { authorizationField() }

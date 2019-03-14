@@ -8,6 +8,7 @@ const val DEFAULT_PREFERENCE_KEY = "gcm_token"
 
 data class PushSettings(
     var port: Int = DEFAULT_ADB_PORT,
+    var useStetho: Boolean = true,
     var preferenceKey: String = DEFAULT_PREFERENCE_KEY,
     var templates: MutableList<PushTemplate> = mutableListOf()
 ) : Serializable

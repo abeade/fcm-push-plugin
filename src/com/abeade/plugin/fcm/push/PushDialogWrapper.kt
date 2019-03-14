@@ -24,7 +24,6 @@ import java.awt.Dimension
 import java.awt.event.ItemEvent
 import javax.swing.*
 
-
 class PushDialogWrapper(
     private val propertiesComponent: PropertiesComponent,
     private val project: Project
@@ -81,7 +80,9 @@ class PushDialogWrapper(
         return panel {
             row("Firebase ID") {
                 firebaseIdField(pushX)
-                button("Search with Stetho") { reloadFirebaseIdFromStetho() }
+                if (settingsManager.useStetho) {
+                    button("Search with Stetho") { reloadFirebaseIdFromStetho() }
+                }
             }
             if (templates.size > 1) {
                 row("Template") { templatesComboBox(pushX) }
@@ -96,6 +97,7 @@ class PushDialogWrapper(
 
     private fun discoverFirebaseIdUsingStetho(): String? {
         val settingsManager = SettingsManager(project)
+        if (!settingsManager.useStetho) return null
         var result: StethoResult
         var process: String? = null
         val preferenceKey = settingsManager.preferenceKey

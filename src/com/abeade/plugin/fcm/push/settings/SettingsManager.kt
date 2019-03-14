@@ -29,6 +29,10 @@ class SettingsManager(project: Project) {
             PasswordSafe.instance.set(credentialAttributes, credentials)
         }
 
+    var useStetho: Boolean
+        get() = pushComponent.settings.useStetho
+        set(value) { pushComponent.settings.useStetho = value }
+
     var preferenceKey: String
         get() = pushComponent.settings.preferenceKey
         set(value) { pushComponent.settings.preferenceKey = value }
