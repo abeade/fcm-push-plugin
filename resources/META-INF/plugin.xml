@@ -2,7 +2,7 @@
   <id>com.abeade.plugin.fcm.push</id>
   <name>FCM push sender</name>
   <version>0.5</version>
-  <vendor email="albert.beade@letgo.com" url="http://www.letgo.com">letgo</vendor>
+  <vendor email="albert.beade@letgo.com" url="https://github.com/abeade">Albert Beade</vendor>
 
   <description><![CDATA[
       Sends push notifications using FCM.<br>

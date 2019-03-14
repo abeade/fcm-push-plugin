@@ -28,8 +28,7 @@ At this point the plugin tries to find the app Firebase Id in the configured sha
 The "Remember" check allows to store the current data for next plugin executions.
 
 # Extra configuration
-
-You can create, import and export templates:
+Also you can create, import and export templates:
 
 ![Settings2](images/settings2.png)
 
@@ -37,3 +36,11 @@ Then you can use the templates in the send dialog:
 
 ![Dialog2](images/push2.png)
 
+# Notes
+One of the main features of this plugin is the ability of search automatically the Firebase Registration ID token in app shared preferences using stetho dumpapp plugin, however you can disable the stetho integration in plugin settings and set the ID manually.
+
+When using stetho to find the Id, the plugin works with one single device connected on debug mode (ADB accessible), no multiple devices are allowed.
+
+If the connected device has more than one stetho-enabled process running, the plugin will ask to select the target process:
+
+![Popup](images/popup.png)
