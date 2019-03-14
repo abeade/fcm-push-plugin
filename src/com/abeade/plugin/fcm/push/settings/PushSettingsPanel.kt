@@ -146,7 +146,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
             add(createGeneralSettingsPanel())
             add(createStethoSettingsPanel())
         }, BorderLayout.PAGE_START)
-        add(JBSplitter(false,0.3f, 0.22f, 0.8f).apply {
+        add(JBSplitter(false,0.3f, 0.25f, 0.8f).apply {
             firstComponent = createTemplatesListPanel()
             secondComponent = createAndroidComponentsPanel()
         }, BorderLayout.CENTER)
@@ -162,9 +162,9 @@ class PushSettingsPanel(project: Project) : JPanel() {
         panel(LCFlags.fillX, title = "Stetho settings") {
             row("Use Stetho plugin") { useStethoField() }
             row("Preference Key") { preferenceKeyField() }
-            row("") { ComponentPanelBuilder.createCommentComponent("Shared preference key where the app has stored the Firebase Registration ID", false)() }
-            row("Preference File (optional)") { preferenceFileField() }
-            row("") { ComponentPanelBuilder.createCommentComponent("Shared preference file where the app has stored the Firebase Registration ID", false)() }
+            row("") { ComponentPanelBuilder.createCommentComponent("Shared preference Key where the app has stored the Firebase Registration ID", false)() }
+            row("Preference File") { preferenceFileField() }
+            row("") { ComponentPanelBuilder.createCommentComponent("Optional setting. Shared preference File where the app has stored the Firebase Registration ID", false)() }
         }
 
     private fun createTemplatesListPanel() =
