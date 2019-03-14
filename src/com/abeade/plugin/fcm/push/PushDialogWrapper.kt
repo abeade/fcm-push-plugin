@@ -100,10 +100,11 @@ class PushDialogWrapper(
         if (!settingsManager.useStetho) return null
         var result: StethoResult
         var process: String? = null
+        val preferenceFile = if (settingsManager.preferenceFile.isNotBlank()) settingsManager.preferenceFile else null
         val preferenceKey = settingsManager.preferenceKey
         do {
             result = try {
-                val id = StethoPreferenceSearcher().getSharedPreference(preferenceKey, process, settingsManager.adbPort)
+                val id = StethoPreferenceSearcher().getSharedPreference(preferenceFile, preferenceKey, process, settingsManager.adbPort)
                 if (id.isNullOrEmpty()) {
                     showNotification("Shared preference $preferenceKey not found in process $process", NotificationType.ERROR)
                 }

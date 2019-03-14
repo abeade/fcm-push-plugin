@@ -33,6 +33,10 @@ class SettingsManager(project: Project) {
         get() = pushComponent.settings.useStetho
         set(value) { pushComponent.settings.useStetho = value }
 
+    var preferenceFile: String
+        get() = pushComponent.settings.preferenceFile
+        set(value) { pushComponent.settings.preferenceFile = value }
+
     var preferenceKey: String
         get() = pushComponent.settings.preferenceKey
         set(value) { pushComponent.settings.preferenceKey = value }

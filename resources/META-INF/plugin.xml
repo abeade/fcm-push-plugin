@@ -13,6 +13,7 @@
       <b>0.5</b>
       <ul>
         <li>Allows to disable stetho integration</li>
+        <li>Adds optional setting to configure the shared preference file where the Firebase registration Id should be searched</li>
       </ul>
       <b>0.4.1</b>
       <ul>

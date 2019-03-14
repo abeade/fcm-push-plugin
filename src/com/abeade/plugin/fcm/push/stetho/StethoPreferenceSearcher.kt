@@ -11,14 +11,19 @@ class StethoPreferenceSearcher {
         private const val PREF_SEPARATOR = " = "
         private val prefsAsUtf8 = "prefs".toByteArray(StandardCharsets.UTF_8)
         private val printAsUtf8 = "print".toByteArray(StandardCharsets.UTF_8)
-        private val commands = listOf(prefsAsUtf8, printAsUtf8)
+        private val commonCommands = listOf(prefsAsUtf8, printAsUtf8)
     }
 
-    fun getSharedPreference(key: String, process: String?, port: Int?): String? {
+    fun getSharedPreference(file: String?, key: String, process: String?, port: Int?): String? {
         val result: String
         val struct = Struct()
         val adbSock = stethoOpen(null, process, port)
         adbSock.outStream.write("DUMP".toByteArray() + struct.pack("!i", 1))
+        val commands = commonCommands.toMutableList()
+        if (file != null) {
+            commands.add(file.toByteArray(StandardCharsets.UTF_8))
+            commands.add(key.toByteArray(StandardCharsets.UTF_8))
+        }
         var enterFrame = "!".toByteArray() + struct.pack("!i", commands.size.toLong())
         for (command in commands) {
             enterFrame += struct.pack("!H", command.size.toLong())
@@ -26,8 +31,13 @@ class StethoPreferenceSearcher {
         }
         adbSock.outStream.write(enterFrame)
         result = readFrames(adbSock, struct)
-        val shared = result.lines().firstOrNull { it.contains("$key$PREF_SEPARATOR") }
-        return shared?.split(PREF_SEPARATOR)?.lastOrNull()
+        val sharedPrefs = result.lines().filter { it.contains("$key$PREF_SEPARATOR") }
+        if (sharedPrefs.size > 1) {
+            throw HumanReadableException("\"Multiple files contains $key shared preference:\n" +
+                    sharedPrefs.fold("") { str, item ->  "$str\t$item\n" } +
+                "Please specify the target file in plugin settings.")
+        }
+        return sharedPrefs.firstOrNull()?.split(PREF_SEPARATOR)?.lastOrNull()
     }
 
     private fun readFrames(adbSock: AdbSmartSocketClient, struct: Struct): String {

@@ -4,7 +4,6 @@ import com.abeade.plugin.fcm.push.model.PushTemplate
 import com.abeade.plugin.fcm.push.utils.CustomEditorField
 import com.abeade.plugin.fcm.push.utils.EMPTY
 import com.abeade.plugin.fcm.push.utils.addTextChangeListener
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
@@ -25,8 +24,7 @@ import javax.swing.event.DocumentListener
 import javax.swing.filechooser.FileNameExtensionFilter
 import javax.swing.text.NumberFormatter
 import java.io.FileWriter
-import com.intellij.internal.statistic.service.fus.beans.FSContent.fromJson
-import org.codehaus.plexus.util.FileUtils.filename
+import com.intellij.openapi.ui.panel.ComponentPanelBuilder
 import java.io.FileReader
 import javax.swing.JOptionPane
 import javax.swing.JFrame
@@ -37,8 +35,12 @@ class PushSettingsPanel(project: Project) : JPanel() {
     private var templateDocumentListener: com.intellij.openapi.editor.event.DocumentListener? = null
 
     private val settingsManager = SettingsManager(project)
+    private val preferenceFileField = JTextField()
     private val useStethoField = JCheckBox().apply {
-        addActionListener { preferenceKeyField.isEnabled = isSelected }
+        addActionListener {
+            preferenceKeyField.isEnabled = isSelected
+            preferenceFileField.isEnabled = isSelected
+        }
     }
     private val preferenceKeyField = JTextField()
     private val authorizationField = JTextField()
@@ -100,12 +102,14 @@ class PushSettingsPanel(project: Project) : JPanel() {
     val isModified: Boolean
         get() = useStethoField.isSelected != settingsManager.useStetho ||
                 preferenceKeyField.text != settingsManager.preferenceKey ||
+                preferenceFileField.text != settingsManager.preferenceFile ||
                 authorizationField.text != settingsManager.authorization ||
                 adbPortField.text != settingsManager.adbPort.toString() ||
                 settingsManager.templates != templatesListModel.items
 
     fun apply() {
         settingsManager.useStetho = useStethoField.isSelected
+        settingsManager.preferenceFile = preferenceFileField.text
         settingsManager.authorization = authorizationField.text
         settingsManager.preferenceKey = preferenceKeyField.text
         settingsManager.adbPort = Integer.parseInt(adbPortField.text)
@@ -115,6 +119,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
 
     fun reset() {
         useStethoField.isSelected = settingsManager.useStetho
+        preferenceFileField.text = settingsManager.preferenceFile
         preferenceKeyField.text = settingsManager.preferenceKey
         authorizationField.text = settingsManager.authorization
         adbPortField.text = settingsManager.adbPort.toString()
@@ -136,24 +141,34 @@ class PushSettingsPanel(project: Project) : JPanel() {
     }
 
     private fun createUI() {
-        add(createGeneralSettingsPannel(), BorderLayout.PAGE_START)
+        add(JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            add(createGeneralSettingsPanel())
+            add(createStethoSettingsPanel())
+        }, BorderLayout.PAGE_START)
         add(JBSplitter(false,0.3f, 0.22f, 0.8f).apply {
             firstComponent = createTemplatesListPanel()
             secondComponent = createAndroidComponentsPanel()
         }, BorderLayout.CENTER)
     }
 
-    private fun createGeneralSettingsPannel() =
+    private fun createGeneralSettingsPanel() =
         panel(LCFlags.fillX, title = "General settings") {
             row("ADB Port") { adbPortField() }
-            row("Use Stetho plugin") { useStethoField() }
-            row("Shared preference Key") { preferenceKeyField() }
-            row("") { label("Shared preference where the app has stored the Firebase Registration ID") }
             row("Authorization Key") { authorizationField() }
         }
 
+    private fun createStethoSettingsPanel() =
+        panel(LCFlags.fillX, title = "Stetho settings") {
+            row("Use Stetho plugin") { useStethoField() }
+            row("Preference Key") { preferenceKeyField() }
+            row("") { ComponentPanelBuilder.createCommentComponent("Shared preference key where the app has stored the Firebase Registration ID", false)() }
+            row("Preference File (optional)") { preferenceFileField() }
+            row("") { ComponentPanelBuilder.createCommentComponent("Shared preference file where the app has stored the Firebase Registration ID", false)() }
+        }
+
     private fun createTemplatesListPanel() =
-        panel(LCFlags.fillX, title = "Templates") {
+        panel(LCFlags.fillX, LCFlags.fillY, title = "Templates") {
             row { toolbarDecorator.createPanel()(growX, growY, pushY) }
             row {
                 cell {
