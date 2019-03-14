@@ -64,7 +64,7 @@ class PushDialogWrapper(
         val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(PushDialogWrapper.FIREBASE_KEY).orEmpty()
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
-        val templates = listOf("") + settingsManager.templates.map { it.name }.toList()
+        val templates = listOf("") + settingsManager.templates.map { it.name }.filterNotNull().toList()
         firebaseIdField = JTextField(firebaseId)
         dataField = CustomEditorField(JsonLanguage.INSTANCE, project, data)
         rememberCheckBox = JCheckBox().apply { isSelected = saveKey }
@@ -98,7 +98,7 @@ class PushDialogWrapper(
         val settingsManager = SettingsManager(project)
         var result: StethoResult
         var process: String? = null
-        val preferenceKey = settingsManager.preferenceKey ?: DEFAULT_PREFERENCE_KEY
+        val preferenceKey = settingsManager.preferenceKey
         do {
             result = try {
                 val id = StethoPreferenceSearcher().getSharedPreference(preferenceKey, process, settingsManager.adbPort)

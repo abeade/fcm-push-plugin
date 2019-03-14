@@ -97,7 +97,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
     val isModified: Boolean
         get() = preferenceKeyField.text != settingsManager.preferenceKey ||
                 authorizationField.text != settingsManager.authorization ||
-                adbPortField.text != settingsManager.adbPort!!.toString() ||
+                adbPortField.text != settingsManager.adbPort.toString() ||
                 settingsManager.templates != templatesListModel.items
 
     fun apply() {
@@ -111,7 +111,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
     fun reset() {
         preferenceKeyField.text = settingsManager.preferenceKey
         authorizationField.text = settingsManager.authorization
-        adbPortField.text = settingsManager.adbPort!!.toString()
+        adbPortField.text = settingsManager.adbPort.toString()
         templatesListModel.removeAll()
         templatesListModel.add(settingsManager.templates.map { it.copy() })
         updateUIState()
