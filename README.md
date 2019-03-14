@@ -1,9 +1,13 @@
+![JetBrains IntelliJ Plugins](https://img.shields.io/jetbrains/plugin/v/12104-fcm-push-sender.svg?color=green&style=plastic)
+
 # FCM push sender
 Sends push notifications using FCM.<br>
 Uses <a href="http://facebook.github.io/stetho/">Stetho</a>'s prefs dumpapp plugin to find the application Firebase Registration ID token in app shared preferences
 
 # Installation
-You can download the latest binary from [releases](https://github.com/abeade/fcm-push-plugin/releases) on this repo
+You can install the plugin from the [Plugin Repository](https://plugins.jetbrains.com/plugin/12104-fcm-push-sender).
+
+Or you can download the latest binary from [releases](https://github.com/abeade/fcm-push-plugin/releases) on this repo
 
 # Setup
 You need to set the "Authorization Key" in plugin settings:
