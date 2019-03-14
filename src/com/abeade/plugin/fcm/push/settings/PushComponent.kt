@@ -10,8 +10,8 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 import java.io.Serializable
 
 @State(
-    name = "ScreenGeneratorConfiguration",
-    storages = [Storage(value = "screenGeneratorConfiguration.xml")])
+    name = "FCMPushSenderConfiguration",
+    storages = [Storage(value = "fcmPushSenderConfiguration.xml")])
 class PushComponent : Serializable, PersistentStateComponent<PushComponent> {
 
     companion object {
