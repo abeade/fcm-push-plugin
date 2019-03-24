@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.abeade.plugin.fcm.push</id>
   <name>FCM push sender</name>
-  <version>0.5</version>
+  <version>0.5.1</version>
   <vendor email="albert.beade@letgo.com" url="https://github.com/abeade">Albert Beade</vendor>
 
   <description><![CDATA[
@@ -10,6 +10,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <b>0.5.1</b>
+      <ul>
+        <li>Uses default project at settings panel</li>
+      </ul>
       <b>0.5</b>
       <ul>
         <li>Allows to disable stetho integration</li>

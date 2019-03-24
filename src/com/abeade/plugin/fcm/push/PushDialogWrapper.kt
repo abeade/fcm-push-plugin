@@ -63,7 +63,7 @@ class PushDialogWrapper(
         val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(PushDialogWrapper.FIREBASE_KEY).orEmpty()
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
-        val templates = listOf("") + settingsManager.templates.map { it.name }.filterNotNull().toList()
+        val templates = listOf("") + settingsManager.templates.map { it.name }.toList()
         firebaseIdField = JTextField(firebaseId)
         dataField = CustomEditorField(JsonLanguage.INSTANCE, project, data)
         rememberCheckBox = JCheckBox().apply { isSelected = saveKey }

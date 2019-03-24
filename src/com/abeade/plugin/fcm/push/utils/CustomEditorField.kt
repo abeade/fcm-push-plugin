@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
 import com.intellij.ui.LanguageTextField
 
-class CustomEditorField(language: Language, project: Project?, s: String) : LanguageTextField(language, project, s) {
+class CustomEditorField(language: Language, project: Project, s: String) : LanguageTextField(language, project, s) {
 
     override fun createEditor(): EditorEx =
         super.createEditor().apply {
