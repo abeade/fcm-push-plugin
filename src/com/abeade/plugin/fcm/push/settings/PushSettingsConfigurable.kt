@@ -4,25 +4,28 @@ import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
 import javax.swing.JComponent
 
-class PushSettingsConfigurable(project: Project) : SearchableConfigurable {
+class PushSettingsConfigurable(private val project: Project) : SearchableConfigurable {
 
-    private val panel = PushSettingsPanel(project)
+    private var panel: PushSettingsPanel? = null
 
     override fun getDisplayName(): String? = "FCM push sender"
 
     override fun getHelpTopic(): String? = "FCM push sender"
 
-    override fun createComponent(): JComponent? = panel
+    override fun createComponent(): JComponent? {
+        panel = PushSettingsPanel(project)
+        return panel
+    }
 
-    override fun isModified(): Boolean = panel.isModified
+    override fun isModified(): Boolean = panel?.isModified == true
 
     override fun getId(): String = "FCM push sender"
 
     override fun apply() {
-        panel.apply()
+        panel?.apply()
     }
 
     override fun reset() {
-        panel.reset()
+        panel?.reset()
     }
 }

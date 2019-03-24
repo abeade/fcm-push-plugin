@@ -10,6 +10,7 @@ import com.google.gson.stream.JsonReader
 import com.intellij.icons.AllIcons
 import com.intellij.json.JsonLanguage
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.ui.CollectionListModel
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.ToolbarDecorator
@@ -73,7 +74,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
         }
     }
     private val templateNameField = JTextField()
-    private val templateDataField = CustomEditorField(JsonLanguage.INSTANCE, project, String.EMPTY)
+    private val templateDataField = CustomEditorField(JsonLanguage.INSTANCE, ProjectManager.getInstance().defaultProject, String.EMPTY)
     private val exportButton = JButton("Export").apply {
         icon = AllIcons.Actions.Download
         addActionListener { onExportTemplates() }
