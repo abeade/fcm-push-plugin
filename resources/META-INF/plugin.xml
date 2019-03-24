@@ -12,7 +12,7 @@
   <change-notes><![CDATA[
       <b>0.5.1</b>
       <ul>
-        <li>Uses default project at settings panel</li>
+        <li>Fix issues with searchable settings</li>
       </ul>
       <b>0.5</b>
       <ul>
