@@ -1,7 +1,7 @@
 ![JetBrains IntelliJ Plugins](https://img.shields.io/jetbrains/plugin/v/12104-fcm-push-sender.svg?color=green&style=plastic)
 
 # FCM push sender
-Sends push notifications using FCM.<br>
+Sends push notifications using Firebase Cloud Messaging (FCM).<br>
 Uses <a href="http://facebook.github.io/stetho/">Stetho</a>'s prefs dumpapp plugin to find the application Firebase Registration ID token in app shared preferences
 
 # Installation

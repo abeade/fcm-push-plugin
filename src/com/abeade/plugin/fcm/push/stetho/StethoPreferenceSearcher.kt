@@ -14,10 +14,14 @@ class StethoPreferenceSearcher {
         private val commonCommands = listOf(prefsAsUtf8, printAsUtf8)
     }
 
-    fun getSharedPreference(file: String?, key: String, process: String?, port: Int?): String? {
+    fun getSharedPreference(file: String?, key: String, device: String?, process: String?, port: Int?): String? {
         val result: String
         val struct = Struct()
-        val adbSock = stethoOpen(null, process, port)
+        val devices = adbDevices(port)
+        if (device == null && devices.size > 1) {
+            throw MultipleDevicesException("", devices)
+        }
+        val adbSock = stethoOpen(device, process, port)
         adbSock.outStream.write("DUMP".toByteArray() + struct.pack("!i", 1))
         val commands = commonCommands.toMutableList()
         if (file != null) {

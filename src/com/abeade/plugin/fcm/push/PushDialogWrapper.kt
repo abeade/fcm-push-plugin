@@ -1,9 +1,9 @@
 package com.abeade.plugin.fcm.push
 
 import com.abeade.plugin.fcm.push.model.PushData
-import com.abeade.plugin.fcm.push.model.DEFAULT_PREFERENCE_KEY
 import com.abeade.plugin.fcm.push.settings.SettingsManager
 import com.abeade.plugin.fcm.push.stetho.HumanReadableException
+import com.abeade.plugin.fcm.push.stetho.MultipleDevicesException
 import com.abeade.plugin.fcm.push.stetho.MultipleStethoProcessesException
 import com.abeade.plugin.fcm.push.stetho.StethoPreferenceSearcher
 import com.abeade.plugin.fcm.push.utils.CustomEditorField
@@ -100,15 +100,19 @@ class PushDialogWrapper(
         if (!settingsManager.useStetho) return null
         var result: StethoResult
         var process: String? = null
+        var device: String? = null
         val preferenceFile = if (settingsManager.preferenceFile.isNotBlank()) settingsManager.preferenceFile else null
         val preferenceKey = settingsManager.preferenceKey
         do {
             result = try {
-                val id = StethoPreferenceSearcher().getSharedPreference(preferenceFile, preferenceKey, process, settingsManager.adbPort)
+                val id = StethoPreferenceSearcher().getSharedPreference(preferenceFile, preferenceKey, device, process, settingsManager.adbPort)
                 if (id.isNullOrEmpty()) {
                     showNotification("Shared preference $preferenceKey not found in process $process", NotificationType.ERROR)
                 }
                 StethoResult.Success(id)
+            } catch (e: MultipleDevicesException) {
+                showNotification(e.reason, NotificationType.WARNING)
+                StethoResult.MultipleDevicesError(e.devices)
             } catch (e: MultipleStethoProcessesException) {
                 showNotification(e.reason, NotificationType.WARNING)
                 StethoResult.MultipleProcessError(e.processes)
@@ -126,8 +130,15 @@ class PushDialogWrapper(
                 } else {
                     result = StethoResult.Error
                 }
+            } else if (result is StethoResult.MultipleDevicesError) {
+                val dialog = DeviceDialogWrapper(result.devices)
+                if (dialog.showAndGet()) {
+                    device = dialog.selectedDevice
+                } else {
+                    result = StethoResult.Error
+                }
             }
-        } while (result is StethoResult.MultipleProcessError)
+        } while (result is StethoResult.MultipleProcessError || result is StethoResult.MultipleDevicesError)
         return when (result) {
             is StethoResult.Success -> result.value
             else -> null
@@ -174,5 +185,6 @@ class PushDialogWrapper(
         data class Success(val value: String?): StethoResult()
         object Error: StethoResult()
         data class  MultipleProcessError(val processes: List<String>): StethoResult()
+        data class  MultipleDevicesError(val devices: List<String>): StethoResult()
     }
 }

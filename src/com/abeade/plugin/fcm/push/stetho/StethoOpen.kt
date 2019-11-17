@@ -9,6 +9,29 @@ import java.net.Socket
 import java.nio.charset.StandardCharsets
 import java.util.*
 
+fun adbDevices(port: Int? = null): MutableList<String> {
+    if (port == null) {
+        throw HumanReadableException("Must specify a port when calling adbDevices")
+    }
+    val adb = AdbSmartSocketClient()
+    adb.connect(port)
+    try {
+        adb.selectService("host:devices")
+        val deviceNames = mutableListOf<String>()
+        repeat(4) { adb.inStream.readByte() }
+        val sc = Scanner(adb.inStream)
+        while (sc.hasNextLine()) {
+            val line = sc.nextLine()
+            deviceNames.add(line.split('\t').first())
+        }
+        return deviceNames
+    } catch (e: SelectServiceException) {
+        throw HumanReadableException("Failure getting devices ${e.reason}")
+    } finally {
+        adb.disconnect()
+    }
+}
+
 fun stethoOpen(device: String? = null, process: String? = null, port: Int? = null): AdbSmartSocketClient {
     val port = port ?: DEFAULT_ADB_PORT
     val adb = connectToDevice(device, port)

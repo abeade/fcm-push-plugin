@@ -7,32 +7,32 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JComponent
 
-class StethoProcessDialogWrapper(private val processes: List<String>) : DialogWrapper(true) {
+class DeviceDialogWrapper(private val devices: List<String>) : DialogWrapper(true) {
 
     init {
         init()
-        title = "Select Stetho-enabled process"
+        title = "Select target device"
     }
 
-    var selectedProcess: String = processes[0]
+    var selectedDevice: String = devices[0]
         private set
 
     override fun createCenterPanel(): JComponent? {
-        val jbList = JBList(*processes.toTypedArray()).apply {
+        val jbList = JBList(*devices.toTypedArray()).apply {
             selectedIndex = 0
-            addListSelectionListener { selectedProcess = selectedValue }
+            addListSelectionListener { selectedDevice = selectedValue }
             addMouseListener(object : MouseAdapter() {
                 override fun mouseClicked(e: MouseEvent?) {
                     if (e?.clickCount == 2) {
-                        this@StethoProcessDialogWrapper.close(0, true)
+                        this@DeviceDialogWrapper.close(0, true)
                     }
                 }
             })
         }
         return panel {
-            row("Multiple stetho-enabled processes available") { }
+            row("Multiple devices are available via ADB.") { }
             row {  }
-            row("Select process:") { }
+            row("Select device:") { }
             row {
                 jbList(grow, grow)
             }
