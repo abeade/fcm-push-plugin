@@ -12,7 +12,8 @@
   <change-notes><![CDATA[
       <b>0.6</b>
       <ul>
-        <li>Allows to manage multiple devices</li>
+        <li>Allows to handle multiple debuggable devices</li>
+        <li>Changes UI implementation due a breaking change in UI DSL</li>
       </ul>
       <b>0.5.1</b>
       <ul>

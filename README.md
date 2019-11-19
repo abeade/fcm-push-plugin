@@ -43,8 +43,10 @@ Then you can use the templates in the send dialog:
 # Notes
 One of the main features of this plugin is the ability of search automatically the Firebase Registration ID token in app shared preferences using stetho dumpapp plugin, however you can disable the stetho integration in plugin settings and set the ID manually.
 
-When using stetho to find the Id, the plugin works with one single device connected on debug mode (ADB accessible), no multiple devices are allowed.
+When using stetho to find the Id, the plugin works with connected devices on debug mode (ADB accessible). If more than one debuggable device is connected, the plugin will show a dialog to select the target device:
 
-If the connected device has more than one stetho-enabled process running, the plugin will ask to select the target process:
+![Popup](images/popup.png)
+
+If the target device has more than one stetho-enabled process running, the plugin will ask to select the target process:
 
 ![Popup](images/popup.png)
