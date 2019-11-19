@@ -12,4 +12,5 @@ public class PushDialog {
     public JCheckBox rememberCheckBox;
     public ComboBox templatesComboBox;
     public JPanel panelData;
+    public JLabel templateLabel;
 }

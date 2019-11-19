@@ -68,10 +68,12 @@ class PushDialogWrapper(
             panelData.add(dataField)
             rememberCheckBox.isSelected = saveKey
             if (templates.size > 1) {
-                templatesComboBox.isEnabled = true
+                templatesComboBox.isVisible = true
+                templateLabel.isVisible = true
                 templates.forEach { templatesComboBox.addItem(it) }
             } else {
-                templatesComboBox.isEnabled = false
+                templatesComboBox.isVisible = false
+                templateLabel.isVisible = false
             }
             templatesComboBox.apply { addItemListener { event ->
                     if (event.stateChange == ItemEvent.SELECTED) {
