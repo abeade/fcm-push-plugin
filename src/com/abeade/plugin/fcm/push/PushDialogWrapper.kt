@@ -6,6 +6,7 @@ import com.abeade.plugin.fcm.push.stetho.HumanReadableException
 import com.abeade.plugin.fcm.push.stetho.MultipleDevicesException
 import com.abeade.plugin.fcm.push.stetho.MultipleStethoProcessesException
 import com.abeade.plugin.fcm.push.stetho.StethoPreferenceSearcher
+import com.abeade.plugin.fcm.push.ui.PushDialog
 import com.abeade.plugin.fcm.push.utils.CustomEditorField
 import com.abeade.plugin.fcm.push.utils.EMPTY
 import com.abeade.plugin.fcm.push.utils.showNotification
@@ -16,13 +17,11 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.json.JsonLanguage
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.ui.layout.panel
-import java.awt.Dimension
+import java.awt.BorderLayout
 import java.awt.event.ItemEvent
-import javax.swing.*
+import javax.swing.JComponent
 
 class PushDialogWrapper(
     private val propertiesComponent: PropertiesComponent,
@@ -50,10 +49,8 @@ class PushDialogWrapper(
 
     private var data: PushData? = null
 
-    private lateinit var firebaseIdField: JTextField
     private lateinit var dataField: CustomEditorField
-    private lateinit var rememberCheckBox: JCheckBox
-    private lateinit var templatesComboBox: ComboBox<String>
+    private lateinit var dialog: PushDialog
 
     override fun getDimensionServiceKey(): String? = DIMENSION_SERVICE_KEY
 
@@ -64,35 +61,31 @@ class PushDialogWrapper(
         val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
         val templates = listOf("") + settingsManager.templates.map { it.name }.toList()
-        firebaseIdField = JTextField(firebaseId)
-        dataField = CustomEditorField(JsonLanguage.INSTANCE, project, data)
-        rememberCheckBox = JCheckBox().apply { isSelected = saveKey }
-        templatesComboBox = ComboBox(templates.toTypedArray()).apply { addItemListener { event ->
-            if (event.stateChange == ItemEvent.SELECTED) {
-                if (selectedIndex - 1 in 0 until settingsManager.templates.size) {
-                    dataField.text = settingsManager.templates[selectedIndex - 1].data
-                } else {
-                    dataField.text = data
-                }
-            }
-        } }
-
-        return panel {
-            row("Firebase ID") {
-                firebaseIdField(pushX)
-                if (settingsManager.useStetho) {
-                    button("Search with Stetho") { reloadFirebaseIdFromStetho() }
-                }
-            }
+        dialog = PushDialog().apply {
+            firebaseIdField.text = firebaseId
+            dataField = CustomEditorField(JsonLanguage.INSTANCE, project, data)
+            panelData.layout = BorderLayout()
+            panelData.add(dataField)
+            rememberCheckBox.isSelected = saveKey
             if (templates.size > 1) {
-                row("Template") { templatesComboBox(pushX) }
+                templatesComboBox.isEnabled = true
+                templates.forEach { templatesComboBox.addItem(it) }
+            } else {
+                templatesComboBox.isEnabled = false
             }
-            row {
-                cell { JLabel("Data").apply { verticalAlignment = JLabel.TOP }(push, grow) }
-                cell { dataField(grow, grow) }
+            templatesComboBox.apply { addItemListener { event ->
+                    if (event.stateChange == ItemEvent.SELECTED) {
+                        if (selectedIndex - 1 in 0 until settingsManager.templates.size) {
+                            dataField.text = settingsManager.templates[selectedIndex - 1].data
+                        } else {
+                            dataField.text = data
+                        }
+                    }
+                }
             }
-            row("Remember") { rememberCheckBox() }
-        }.apply { minimumSize = Dimension(600, 200) }
+            searchWithStethoButton.isVisible = settingsManager.useStetho
+        }
+        return dialog.panelMain
     }
 
     private fun discoverFirebaseIdUsingStetho(): String? {
@@ -146,20 +139,20 @@ class PushDialogWrapper(
     }
 
     private fun reloadFirebaseIdFromStetho() {
-        val old = firebaseIdField.text
-        firebaseIdField.text = String.EMPTY
+        val old = dialog.firebaseIdField.text
+        dialog.firebaseIdField.text = String.EMPTY
         discoverFirebaseIdUsingStetho()?.let {
-            firebaseIdField.text = it
-        } ?: run { firebaseIdField.text = old }
+            dialog.firebaseIdField.text = it
+        } ?: run { dialog.firebaseIdField.text = old }
     }
 
     override fun doOKAction() {
         data = PushData(
-            firebaseIdField.text,
-            JsonParser().parse(dataField.text).toString()
+                dialog.firebaseIdField.text,
+                JsonParser().parse(dataField.text).toString()
         )
-        val remember = rememberCheckBox.isSelected
-        propertiesComponent.setValue(FIREBASE_KEY, if (remember) firebaseIdField.text else null)
+        val remember = dialog.rememberCheckBox.isSelected
+        propertiesComponent.setValue(FIREBASE_KEY, if (remember) dialog.firebaseIdField.text else null)
         propertiesComponent.setValue(DATA_KEY, if (remember) dataField.text else null)
         propertiesComponent.setValue(SAVE_KEY, remember)
         super.doOKAction()
@@ -167,7 +160,7 @@ class PushDialogWrapper(
 
     override fun doValidate(): ValidationInfo? {
         return when {
-            firebaseIdField.text.isBlank() -> ValidationInfo("Firebase Id required", firebaseIdField)
+            dialog.firebaseIdField.text.isBlank() -> ValidationInfo("Firebase Id required", dialog.firebaseIdField)
             dataField.text.isBlank() -> ValidationInfo("Data field required", dataField)
             !isValidJson() -> ValidationInfo("Data should be a valid JSON", dataField)
             else -> null

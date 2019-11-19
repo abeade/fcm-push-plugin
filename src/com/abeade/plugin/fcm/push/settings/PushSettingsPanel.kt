@@ -1,6 +1,7 @@
 package com.abeade.plugin.fcm.push.settings
 
 import com.abeade.plugin.fcm.push.model.PushTemplate
+import com.abeade.plugin.fcm.push.ui.SettingsPanel
 import com.abeade.plugin.fcm.push.utils.CustomEditorField
 import com.abeade.plugin.fcm.push.utils.EMPTY
 import com.abeade.plugin.fcm.push.utils.addTextChangeListener
@@ -11,12 +12,11 @@ import com.intellij.icons.AllIcons
 import com.intellij.json.JsonLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.ui.panel.ComponentPanelBuilder
 import com.intellij.ui.CollectionListModel
-import com.intellij.ui.JBSplitter
+import com.intellij.ui.IdeBorderFactory
 import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.components.JBList
-import com.intellij.ui.layout.LCFlags
-import com.intellij.ui.layout.panel
 import java.awt.BorderLayout
 import java.io.File
 import java.text.NumberFormat
@@ -25,27 +25,18 @@ import javax.swing.event.DocumentListener
 import javax.swing.filechooser.FileNameExtensionFilter
 import javax.swing.text.NumberFormatter
 import java.io.FileWriter
-import com.intellij.openapi.ui.panel.ComponentPanelBuilder
 import java.io.FileReader
 import javax.swing.JOptionPane
 import javax.swing.JFrame
+import javax.swing.text.DefaultFormatterFactory
 
-class PushSettingsPanel(project: Project) : JPanel() {
+class PushSettingsPanel(project: Project) {
+
+    private val settingsPanel = SettingsPanel()
 
     private var nameDocumentListener: DocumentListener? = null
     private var templateDocumentListener: com.intellij.openapi.editor.event.DocumentListener? = null
-
     private val settingsManager = SettingsManager(project)
-    private val preferenceFileField = JTextField()
-    private val useStethoField = JCheckBox().apply {
-        addActionListener {
-            preferenceKeyField.isEnabled = isSelected
-            preferenceFileField.isEnabled = isSelected
-        }
-    }
-    private val preferenceKeyField = JTextField()
-    private val authorizationField = JTextField()
-    private val adbPortField: JFormattedTextField
     private val templatesListModel = CollectionListModel<PushTemplate>()
     private val templatesList = JBList<PushTemplate>(templatesListModel).apply {
         selectionMode = ListSelectionModel.SINGLE_SELECTION
@@ -66,23 +57,14 @@ class PushSettingsPanel(project: Project) : JPanel() {
         setAddAction {
             templatesListModel.add(PushTemplate("Unnamed", String.EMPTY))
             templatesList.selectedIndex = templatesList.itemsCount - 1
-            exportButton.isEnabled = true
+            settingsPanel.exportButton.isEnabled = true
         }
         setRemoveAction {
             templatesListModel.remove(templatesList.selectedIndex)
-            exportButton.isEnabled = !templatesListModel.isEmpty
+            settingsPanel.exportButton.isEnabled = !templatesListModel.isEmpty
         }
     }
-    private val templateNameField = JTextField()
     private val templateDataField = CustomEditorField(JsonLanguage.INSTANCE, ProjectManager.getInstance().defaultProject, String.EMPTY)
-    private val exportButton = JButton("Export").apply {
-        icon = AllIcons.Actions.Download
-        addActionListener { onExportTemplates() }
-    }
-    private val importButton = JButton("Import").apply {
-        icon = AllIcons.Actions.Upload
-        addActionListener { onImportTemplates() }
-    }
 
     init {
         val format = NumberFormat.getInstance().apply {
@@ -95,35 +77,62 @@ class PushSettingsPanel(project: Project) : JPanel() {
             allowsInvalid = false
             commitsOnValidEdit = true
         }
-        adbPortField = JFormattedTextField(formatter)
-        layout = BorderLayout()
-        createUI()
+        settingsPanel.adbPortField.formatterFactory = DefaultFormatterFactory(formatter)
+        settingsPanel.templateDataPanel.layout = BorderLayout()
+        settingsPanel.templateDataPanel.add(templateDataField)
+        settingsPanel.useStethoField.apply {
+            addActionListener {
+                settingsPanel.preferenceKeyField.isEnabled = isSelected
+                settingsPanel.preferenceFileField.isEnabled = isSelected
+            }
+        }
+        settingsPanel.exportButton.apply {
+            icon = AllIcons.Actions.Download
+            addActionListener { onExportTemplates() }
+        }
+        settingsPanel.importButton.apply {
+            icon = AllIcons.Actions.Upload
+            addActionListener { onImportTemplates() }
+        }
+        settingsPanel.templatesPanel.layout = BorderLayout()
+        settingsPanel.templatesPanel.add(toolbarDecorator.createPanel())
+        settingsPanel.generalSettingsPanel.border = IdeBorderFactory.createTitledBorder("General settings")
+        settingsPanel.sethetoSettingsPanel.border = IdeBorderFactory.createTitledBorder("Stetho settings")
+        settingsPanel.templatesContainerPanel.border = IdeBorderFactory.createTitledBorder("Templates")
+        settingsPanel.templateContentPanel.border = IdeBorderFactory.createTitledBorder("Template content")
+        settingsPanel.templatesSplitPanel.border = BorderFactory.createEmptyBorder()
+        settingsPanel.preferenceKeyHelpPanel.layout = BorderLayout()
+        settingsPanel.preferenceKeyHelpPanel.add(ComponentPanelBuilder.createCommentComponent("Shared preference Key where the app has stored the Firebase Registration ID", false))
+        settingsPanel.preferenceFileHelpPanel.layout = BorderLayout()
+        settingsPanel.preferenceFileHelpPanel.add(ComponentPanelBuilder.createCommentComponent("Optional setting. Shared preference File where the app has stored the Firebase Registration ID", false))
     }
 
     val isModified: Boolean
-        get() = useStethoField.isSelected != settingsManager.useStetho ||
-                preferenceKeyField.text != settingsManager.preferenceKey ||
-                preferenceFileField.text != settingsManager.preferenceFile ||
-                authorizationField.text != settingsManager.authorization ||
-                adbPortField.text != settingsManager.adbPort.toString() ||
+        get() = settingsPanel.useStethoField.isSelected != settingsManager.useStetho ||
+                settingsPanel.preferenceKeyField.text != settingsManager.preferenceKey ||
+                settingsPanel.preferenceFileField.text != settingsManager.preferenceFile ||
+                settingsPanel.authorizationField.text != settingsManager.authorization ||
+                settingsPanel.adbPortField.text != settingsManager.adbPort.toString() ||
                 settingsManager.templates != templatesListModel.items
 
+    fun createPanel(): JPanel = settingsPanel.mainPanel
+
     fun apply() {
-        settingsManager.useStetho = useStethoField.isSelected
-        settingsManager.preferenceFile = preferenceFileField.text
-        settingsManager.authorization = authorizationField.text
-        settingsManager.preferenceKey = preferenceKeyField.text
-        settingsManager.adbPort = Integer.parseInt(adbPortField.text)
+        settingsManager.useStetho = settingsPanel.useStethoField.isSelected
+        settingsManager.preferenceFile = settingsPanel.preferenceFileField.text
+        settingsManager.authorization = settingsPanel.authorizationField.text
+        settingsManager.preferenceKey = settingsPanel.preferenceKeyField.text
+        settingsManager.adbPort = Integer.parseInt(settingsPanel.adbPortField.text)
         settingsManager.templates.clear()
         settingsManager.templates.addAll(templatesListModel.items.map { it.copy() })
     }
 
     fun reset() {
-        useStethoField.isSelected = settingsManager.useStetho
-        preferenceFileField.text = settingsManager.preferenceFile
-        preferenceKeyField.text = settingsManager.preferenceKey
-        authorizationField.text = settingsManager.authorization
-        adbPortField.text = settingsManager.adbPort.toString()
+        settingsPanel.useStethoField.isSelected = settingsManager.useStetho
+        settingsPanel.preferenceFileField.text = settingsManager.preferenceFile
+        settingsPanel.preferenceKeyField.text = settingsManager.preferenceKey
+        settingsPanel.authorizationField.text = settingsManager.authorization
+        settingsPanel.adbPortField.text = settingsManager.adbPort.toString()
         templatesListModel.removeAll()
         templatesListModel.add(settingsManager.templates.map { it.copy() })
         updateUIState()
@@ -132,89 +141,44 @@ class PushSettingsPanel(project: Project) : JPanel() {
     private fun updateUIState() {
         if (templatesListModel.isEmpty) {
             disableTemplate()
-            exportButton.isEnabled = false
+            settingsPanel.exportButton.isEnabled = false
         } else {
             enableTemplate()
             templatesList.selectedIndex = 0
             showTemplate(templatesListModel.items.firstOrNull())
-            exportButton.isEnabled = true
+            settingsPanel.exportButton.isEnabled = true
         }
     }
-
-    private fun createUI() {
-        add(JPanel().apply {
-            layout = BoxLayout(this, BoxLayout.Y_AXIS)
-            add(createGeneralSettingsPanel())
-            add(createStethoSettingsPanel())
-        }, BorderLayout.PAGE_START)
-        add(JBSplitter(false,0.3f, 0.25f, 0.8f).apply {
-            firstComponent = createTemplatesListPanel()
-            secondComponent = createAndroidComponentsPanel()
-        }, BorderLayout.CENTER)
-    }
-
-    private fun createGeneralSettingsPanel() =
-        panel(LCFlags.fillX, title = "General settings") {
-            row("ADB Port") { adbPortField() }
-            row("Authorization Key") { authorizationField() }
-        }
-
-    private fun createStethoSettingsPanel() =
-        panel(LCFlags.fillX, title = "Stetho settings") {
-            row("Use Stetho plugin") { useStethoField() }
-            row("Preference Key") { preferenceKeyField() }
-            row("") { ComponentPanelBuilder.createCommentComponent("Shared preference Key where the app has stored the Firebase Registration ID", false)() }
-            row("Preference File") { preferenceFileField() }
-            row("") { ComponentPanelBuilder.createCommentComponent("Optional setting. Shared preference File where the app has stored the Firebase Registration ID", false)() }
-        }
-
-    private fun createTemplatesListPanel() =
-        panel(LCFlags.fillX, LCFlags.fillY, title = "Templates") {
-            row { toolbarDecorator.createPanel()(growX, growY, pushY) }
-            row {
-                cell {
-                    importButton(growY)
-                    exportButton(growY)
-                }
-            }
-        }
-
-    private fun createAndroidComponentsPanel() =
-        panel(LCFlags.fillX, title = "Template content") {
-            row("Name") { templateNameField() }
-            row { label("Data") }
-            row { templateDataField(growX, growY, pushY) }
-        }
 
     private fun disableTemplate() {
         templateDataField.isEnabled = false
-        templateNameField.isEnabled = false
+        settingsPanel.templateNameField.isEnabled = false
     }
 
     private fun enableTemplate() {
         templateDataField.isEnabled = true
-        templateNameField.isEnabled = true
+        settingsPanel.templateNameField.isEnabled = true
     }
 
     private fun showTemplate(template: PushTemplate?) {
         if (template != null) {
             templateDataField.text = template.data
-            templateNameField.text = template.name
+            settingsPanel.templateNameField.text = template.name
             enableTemplate()
         } else {
             templateDataField.text = String.EMPTY
-            templateNameField.text = String.EMPTY
+            settingsPanel.templateNameField.text = String.EMPTY
             disableTemplate()
         }
     }
 
     private fun addTextChangeListeners() {
-        nameDocumentListener = templateNameField.addTextChangeListener(::onNameChange)
+        nameDocumentListener = settingsPanel.templateNameField.addTextChangeListener(::onNameChange)
         templateDocumentListener = templateDataField.addTextChangeListener(::onTemplateChange)
     }
 
     private fun removeTextChangeListeners() {
-        nameDocumentListener?.let { templateNameField.document.removeDocumentListener(it) }
+        nameDocumentListener?.let { settingsPanel.templateNameField.document.removeDocumentListener(it) }
         templateDocumentListener?.let { templateDataField.document.removeDocumentListener(it) }
         nameDocumentListener = null
         templateDocumentListener = null
@@ -222,7 +186,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
 
     private fun onNameChange(name: String) {
         templatesListModel.items[templatesList.selectedIndex].name = name
-        templatesList.updateUI()
+        settingsPanel.templatesPanel.updateUI()
     }
 
     private fun onTemplateChange(text: String) {
@@ -236,7 +200,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
             isAcceptAllFileFilterUsed = false
             dialogTitle = "Select plugin templates file to load"
         }
-        if (fileDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION && fileDialog.selectedFile.exists()) {
+        if (fileDialog.showOpenDialog(settingsPanel.mainPanel) == JFileChooser.APPROVE_OPTION && fileDialog.selectedFile.exists()) {
             val templatesListType = object : TypeToken<List<PushTemplate>>() { }.type
             try {
                 val gson = GsonBuilder().create()
@@ -268,7 +232,7 @@ class PushSettingsPanel(project: Project) : JPanel() {
             isAcceptAllFileFilterUsed = false
             dialogTitle = "Select plugin templates file to save"
         }
-        if (fileDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        if (fileDialog.showSaveDialog(settingsPanel.mainPanel) == JFileChooser.APPROVE_OPTION) {
             var file = fileDialog.selectedFile
             if (!file.absolutePath.endsWith("json")) {
                 file = File("$file.json")

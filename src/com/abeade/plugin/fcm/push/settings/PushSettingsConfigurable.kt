@@ -14,7 +14,7 @@ class PushSettingsConfigurable(private val project: Project) : SearchableConfigu
 
     override fun createComponent(): JComponent? {
         panel = PushSettingsPanel(project)
-        return panel
+        return panel!!.createPanel()
     }
 
     override fun isModified(): Boolean = panel?.isModified == true
