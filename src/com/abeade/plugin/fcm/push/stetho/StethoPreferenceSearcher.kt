@@ -19,7 +19,7 @@ class StethoPreferenceSearcher {
         val struct = Struct()
         val devices = adbDevices(port)
         if (device == null && devices.size > 1) {
-            throw MultipleDevicesException("", devices)
+            throw MultipleDevicesException(devices)
         }
         val adbSock = stethoOpen(device, process, port)
         adbSock.outStream.write("DUMP".toByteArray() + struct.pack("!i", 1))

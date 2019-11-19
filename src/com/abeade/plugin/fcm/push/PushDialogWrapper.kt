@@ -106,10 +106,8 @@ class PushDialogWrapper(
                 }
                 StethoResult.Success(id)
             } catch (e: MultipleDevicesException) {
-                showNotification(e.reason, NotificationType.WARNING)
                 StethoResult.MultipleDevicesError(e.devices)
             } catch (e: MultipleStethoProcessesException) {
-                showNotification(e.reason, NotificationType.WARNING)
                 StethoResult.MultipleProcessError(e.processes)
             } catch (e: HumanReadableException) {
                 showNotification(e.reason, NotificationType.ERROR)
