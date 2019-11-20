@@ -45,8 +45,8 @@ One of the main features of this plugin is the ability of search automatically t
 
 When using stetho to find the Id, the plugin works with connected devices on debug mode (ADB accessible). If more than one debuggable device is connected, the plugin will show a dialog to select the target device:
 
-![Popup](images/popup.png)
+![Popup Devices](images/popup2.png)
 
 If the target device has more than one stetho-enabled process running, the plugin will ask to select the target process:
 
-![Popup](images/popup.png)
+![Popup Processes](images/popup.png)
