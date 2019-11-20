@@ -64,7 +64,7 @@ class PushDialogWrapper(
         val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(FIREBASE_KEY).orEmpty()
         var currentData = propertiesComponent.getValue(DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
-        val templates = listOf("[Current]") + settingsManager.templates.map { it.name }.toList()
+        val templates = listOf("[current data]") + settingsManager.templates.map { it.name }.toList()
         dialog = PushDialog().apply {
             firebaseIdField.text = firebaseId
             dataField = CustomEditorField(JsonLanguage.INSTANCE, project, currentData).apply {

@@ -19,16 +19,15 @@ import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.components.JBList
 import java.awt.BorderLayout
 import java.io.File
+import java.io.FileReader
+import java.io.FileWriter
 import java.text.NumberFormat
 import javax.swing.*
 import javax.swing.event.DocumentListener
 import javax.swing.filechooser.FileNameExtensionFilter
-import javax.swing.text.NumberFormatter
-import java.io.FileWriter
-import java.io.FileReader
-import javax.swing.JOptionPane
-import javax.swing.JFrame
+import javax.swing.plaf.basic.BasicSplitPaneDivider
 import javax.swing.text.DefaultFormatterFactory
+import javax.swing.text.NumberFormatter
 
 class PushSettingsWrapper(project: Project) {
 
@@ -105,6 +104,8 @@ class PushSettingsWrapper(project: Project) {
         settingsPanel.preferenceKeyHelpPanel.add(ComponentPanelBuilder.createCommentComponent("Shared preference Key where the app has stored the Firebase Registration ID", false))
         settingsPanel.preferenceFileHelpPanel.layout = BorderLayout()
         settingsPanel.preferenceFileHelpPanel.add(ComponentPanelBuilder.createCommentComponent("Optional setting. Shared preference File where the app has stored the Firebase Registration ID", false))
+        val divider = settingsPanel.templatesSplitPanel.components.find { it is BasicSplitPaneDivider } as? BasicSplitPaneDivider
+        divider?.border = BorderFactory.createEmptyBorder()
     }
 
     val isModified: Boolean
