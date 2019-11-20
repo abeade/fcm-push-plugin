@@ -16,6 +16,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.json.JsonLanguage
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
@@ -55,15 +56,29 @@ class PushDialogWrapper(
     override fun getDimensionServiceKey(): String? = DIMENSION_SERVICE_KEY
 
     override fun createCenterPanel(): JComponent {
+        var edited = false
+        var updatingText = false
+        var updatingTemplate = false
         val settingsManager = SettingsManager(project)
         val firebaseIdFromSharedPreference = discoverFirebaseIdUsingStetho()
-        val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(PushDialogWrapper.FIREBASE_KEY).orEmpty()
-        val data = propertiesComponent.getValue(PushDialogWrapper.DATA_KEY).orEmpty()
+        val firebaseId = firebaseIdFromSharedPreference ?: propertiesComponent.getValue(FIREBASE_KEY).orEmpty()
+        var currentData = propertiesComponent.getValue(DATA_KEY).orEmpty()
         val saveKey = propertiesComponent.getBoolean(SAVE_KEY)
-        val templates = listOf("") + settingsManager.templates.map { it.name }.toList()
+        val templates = listOf("[Current]") + settingsManager.templates.map { it.name }.toList()
         dialog = PushDialog().apply {
             firebaseIdField.text = firebaseId
-            dataField = CustomEditorField(JsonLanguage.INSTANCE, project, data)
+            dataField = CustomEditorField(JsonLanguage.INSTANCE, project, currentData).apply {
+                addDocumentListener(object : DocumentListener {
+                    override fun documentChanged(event: com.intellij.openapi.editor.event.DocumentEvent) {
+                        if (!updatingText) {
+                            updatingTemplate = true
+                            templatesComboBox.selectedIndex = 0
+                            edited = true
+                            updatingTemplate = false
+                        }
+                    }
+                })
+            }
             panelData.layout = BorderLayout()
             panelData.add(dataField)
             rememberCheckBox.isSelected = saveKey
@@ -75,16 +90,25 @@ class PushDialogWrapper(
                 templatesComboBox.isVisible = false
                 templateLabel.isVisible = false
             }
-            templatesComboBox.apply { addItemListener { event ->
-                    if (event.stateChange == ItemEvent.SELECTED) {
+            templatesComboBox.apply {
+                addItemListener { event ->
+                    if (event.stateChange == ItemEvent.SELECTED && !updatingTemplate) {
+                        updatingText = true
                         if (selectedIndex - 1 in 0 until settingsManager.templates.size) {
+                            if (edited) {
+                                currentData = dataField.text
+                            }
                             dataField.text = settingsManager.templates[selectedIndex - 1].data
+                            edited = false
                         } else {
-                            dataField.text = data
+                            dataField.text = currentData
+                            edited = false
                         }
+                        updatingText = false
                     }
                 }
             }
+            searchWithStethoButton.addActionListener { reloadFirebaseIdFromStetho() }
             searchWithStethoButton.isVisible = settingsManager.useStetho
         }
         return dialog.panelMain

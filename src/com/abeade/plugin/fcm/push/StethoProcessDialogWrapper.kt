@@ -2,8 +2,6 @@ package com.abeade.plugin.fcm.push
 
 import com.abeade.plugin.fcm.push.ui.StethoProcessDialog
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.ui.components.JBList
-import com.intellij.ui.layout.panel
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JComponent

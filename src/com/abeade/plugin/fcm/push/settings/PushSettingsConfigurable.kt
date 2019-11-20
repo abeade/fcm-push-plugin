@@ -6,14 +6,14 @@ import javax.swing.JComponent
 
 class PushSettingsConfigurable(private val project: Project) : SearchableConfigurable {
 
-    private var panel: PushSettingsPanel? = null
+    private var panel: PushSettingsWrapper? = null
 
     override fun getDisplayName(): String? = "FCM push sender"
 
     override fun getHelpTopic(): String? = "FCM push sender"
 
     override fun createComponent(): JComponent? {
-        panel = PushSettingsPanel(project)
+        panel = PushSettingsWrapper(project)
         return panel!!.createPanel()
     }
 

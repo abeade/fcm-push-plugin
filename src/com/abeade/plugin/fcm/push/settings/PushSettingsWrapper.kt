@@ -30,7 +30,7 @@ import javax.swing.JOptionPane
 import javax.swing.JFrame
 import javax.swing.text.DefaultFormatterFactory
 
-class PushSettingsPanel(project: Project) {
+class PushSettingsWrapper(project: Project) {
 
     private val settingsPanel = SettingsPanel()
 
