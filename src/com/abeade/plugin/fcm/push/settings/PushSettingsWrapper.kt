@@ -4,6 +4,7 @@ import com.abeade.plugin.fcm.push.model.PushTemplate
 import com.abeade.plugin.fcm.push.ui.SettingsPanel
 import com.abeade.plugin.fcm.push.utils.CustomEditorField
 import com.abeade.plugin.fcm.push.utils.EMPTY
+import com.abeade.plugin.fcm.push.utils.addItemChangedListener
 import com.abeade.plugin.fcm.push.utils.addTextChangeListener
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -18,6 +19,8 @@ import com.intellij.ui.IdeBorderFactory
 import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.components.JBList
 import java.awt.BorderLayout
+import java.awt.event.ItemEvent
+import java.awt.event.ItemListener
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
@@ -31,8 +34,17 @@ import javax.swing.text.NumberFormatter
 
 class PushSettingsWrapper(project: Project) {
 
+    private companion object {
+
+        private const val DATA_LABEL = "Data"
+        private const val MESSAGE_LABEL = "Message"
+    }
+
     private val settingsPanel = SettingsPanel()
 
+    private var updatingData = false
+    private var templateDataListener: ItemListener? = null
+    private var templateMessageListener: ItemListener? = null
     private var nameDocumentListener: DocumentListener? = null
     private var templateDocumentListener: com.intellij.openapi.editor.event.DocumentListener? = null
     private val settingsManager = SettingsManager(project)
@@ -106,6 +118,9 @@ class PushSettingsWrapper(project: Project) {
         settingsPanel.preferenceFileHelpPanel.add(ComponentPanelBuilder.createCommentComponent("Optional setting. Shared preference File where the app has stored the Firebase Registration ID", false))
         val divider = settingsPanel.templatesSplitPanel.components.find { it is BasicSplitPaneDivider } as? BasicSplitPaneDivider
         divider?.border = BorderFactory.createEmptyBorder()
+        val radioGroup = ButtonGroup()
+        radioGroup.add(settingsPanel.templateDataRadioButton)
+        radioGroup.add(settingsPanel.templateMessageRadioButton)
     }
 
     val isModified: Boolean
@@ -154,21 +169,29 @@ class PushSettingsWrapper(project: Project) {
     private fun disableTemplate() {
         templateDataField.isEnabled = false
         settingsPanel.templateNameField.isEnabled = false
+        settingsPanel.templateDataRadioButton.isEnabled = false
+        settingsPanel.templateMessageRadioButton.isEnabled = false
     }
 
     private fun enableTemplate() {
         templateDataField.isEnabled = true
         settingsPanel.templateNameField.isEnabled = true
+        settingsPanel.templateDataRadioButton.isEnabled = true
+        settingsPanel.templateMessageRadioButton.isEnabled = true
     }
 
     private fun showTemplate(template: PushTemplate?) {
         if (template != null) {
             templateDataField.text = template.data
             settingsPanel.templateNameField.text = template.name
+            settingsPanel.templateMessageRadioButton.isSelected = template.isMessage
+            settingsPanel.templateDataRadioButton.isSelected = !template.isMessage
             enableTemplate()
         } else {
             templateDataField.text = String.EMPTY
             settingsPanel.templateNameField.text = String.EMPTY
+            settingsPanel.templateMessageRadioButton.isSelected = false
+            settingsPanel.templateDataRadioButton.isSelected = true
             disableTemplate()
         }
     }
@@ -176,13 +199,29 @@ class PushSettingsWrapper(project: Project) {
     private fun addTextChangeListeners() {
         nameDocumentListener = settingsPanel.templateNameField.addTextChangeListener(::onNameChange)
         templateDocumentListener = templateDataField.addTextChangeListener(::onTemplateChange)
+        templateDataListener = settingsPanel.templateDataRadioButton.addItemChangedListener(::onDataTypeChange)
+        templateMessageListener = settingsPanel.templateMessageRadioButton.addItemChangedListener(::onMessageTypeChange)
     }
 
     private fun removeTextChangeListeners() {
         nameDocumentListener?.let { settingsPanel.templateNameField.document.removeDocumentListener(it) }
         templateDocumentListener?.let { templateDataField.document.removeDocumentListener(it) }
+        templateDataListener?.let { settingsPanel.templateDataRadioButton.removeItemListener(it) }
+        templateMessageListener?.let { settingsPanel.templateMessageRadioButton.removeItemListener(it) }
         nameDocumentListener = null
         templateDocumentListener = null
+        templateDataListener = null
+        templateMessageListener = null
+    }
+
+    private fun onMessageTypeChange(event: ItemEvent?) {
+        settingsPanel.dataLabel.text = MESSAGE_LABEL
+        templatesListModel.items[templatesList.selectedIndex].isMessage = true
+    }
+
+    private fun onDataTypeChange(event: ItemEvent?) {
+        settingsPanel.dataLabel.text = DATA_LABEL
+        templatesListModel.items[templatesList.selectedIndex].isMessage = false
     }
 
     private fun onNameChange(name: String) {

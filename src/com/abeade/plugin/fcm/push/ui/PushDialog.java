@@ -12,4 +12,7 @@ public class PushDialog {
     public ComboBox templatesComboBox;
     public JPanel panelData;
     public JLabel templateLabel;
+    public JLabel dataLabel;
+    public JRadioButton dataRadioButton;
+    public JRadioButton messageRadioButton;
 }
