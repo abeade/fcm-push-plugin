@@ -42,7 +42,6 @@ class PushSettingsWrapper(project: Project) {
 
     private val settingsPanel = SettingsPanel()
 
-    private var updatingData = false
     private var templateDataListener: ItemListener? = null
     private var templateMessageListener: ItemListener? = null
     private var nameDocumentListener: DocumentListener? = null

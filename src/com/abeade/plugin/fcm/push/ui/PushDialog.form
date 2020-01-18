@@ -101,8 +101,8 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Data"/>
-              <toolTipText value="The provided JSON will be placed in the &quot;data&quot; field."/>
+              <text value="Data only"/>
+              <toolTipText value="The provided JSON object will be placed in the message &quot;data&quot; field."/>
             </properties>
           </component>
           <component id="73114" class="javax.swing.JRadioButton" binding="messageRadioButton" default-binding="true">
@@ -110,8 +110,8 @@
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Message"/>
-              <toolTipText value="Allows full control over the push JSON.&#10;The &quot;to&quot; field will be added automatically."/>
+              <text value="Full message"/>
+              <toolTipText value="Provides full control over the JSON push message. The &quot;to&quot; field will be added automatically."/>
             </properties>
           </component>
         </children>
