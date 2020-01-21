@@ -1,6 +1,7 @@
 package com.abeade.plugin.fcm.push.model
 
 import com.abeade.plugin.fcm.push.utils.EMPTY
+import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 const val DEFAULT_ADB_PORT = 5037
@@ -16,7 +17,9 @@ data class PushSettings(
 
 data class PushTemplate(
     var name: String = String.EMPTY,
-    var data: String = String.EMPTY
+    var data: String = String.EMPTY,
+    @SerializedName("is_message")
+    var isMessage: Boolean = false
 ) : Serializable {
     override fun toString() = name
 }

@@ -21,4 +21,7 @@ public class SettingsPanel {
     public JSplitPane templatesSplitPanel;
     public JPanel preferenceKeyHelpPanel;
     public JPanel preferenceFileHelpPanel;
+    public JRadioButton templateDataRadioButton;
+    public JRadioButton templateMessageRadioButton;
+    public JLabel dataLabel;
 }
