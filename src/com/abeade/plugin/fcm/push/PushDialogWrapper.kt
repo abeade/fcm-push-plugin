@@ -80,7 +80,7 @@ class PushDialogWrapper(
             fun setEdited() {
                 if (!updatingData) {
                     updatingTemplate = true
-                    templatesComboBox.selectedIndex = 0
+                    if (templatesComboBox.itemCount > 0) templatesComboBox.selectedIndex = 0
                     edited = true
                     updatingTemplate = false
                 }
