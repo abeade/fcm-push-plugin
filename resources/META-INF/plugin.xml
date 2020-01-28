@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.abeade.plugin.fcm.push</id>
   <name>FCM push sender</name>
-  <version>0.7</version>
+  <version>0.7.1</version>
   <vendor email="albert.beade@letgo.com" url="https://github.com/abeade">Albert Beade</vendor>
 
   <description><![CDATA[
@@ -10,9 +10,13 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <b>0.7.1</b>
+      <ul>
+        <li>Fix bug when changing JSON type</li>
+      </ul>
       <b>0.7</b>
       <ul>
-        <li>Allows full control over the push JSON message</li>
+        <li>Allows full control over the full push JSON message</li>
       </ul>
       <b>0.6</b>
       <ul>
