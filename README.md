@@ -1,8 +1,12 @@
-![JetBrains IntelliJ Plugins](https://img.shields.io/jetbrains/plugin/v/12104-fcm-push-sender.svg?color=green&style=plastic)
+![Build](https://github.com/abeade/fcm-push-plugin/workflows/Build/badge.svg)
+[![Version](https://img.shields.io/jetbrains/plugin/v/com.abeade.plugin.fcm.push.svg)](https://plugins.jetbrains.com/plugin/12104-fcm-push-sender)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/com.abeade.plugin.fcm.push.svg)](https://plugins.jetbrains.com/plugin/12104-fcm-push-sender)
 
 # FCM push sender
+<!-- Plugin description -->
 Sends push notifications using [Firebase Cloud Messaging (FCM)](https://firebase.google.com/docs/cloud-messaging).<br>
 Uses [Stetho](http://facebook.github.io/stetho/)'s prefs dumpapp plugin to find the application Firebase Registration ID token in app shared preferences
+<!-- Plugin description end -->
 
 # Installation
 You can install the plugin from the [IntelliJ Plugin Repository](https://plugins.jetbrains.com/plugin/12104-fcm-push-sender).

@@ -1,0 +1,24 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>com.abeade.plugin.fcm.push</id>
+    <name>FCM push sender</name>
+    <vendor email="albert.beade@letgo.com" url="https://github.com/abeade">Albert Beade</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <projectConfigurable instance="com.abeade.plugin.fcm.push.settings.PushSettingsConfigurable" groupId="tools"
+                             groupWeight="130" displayName="FCM push sender"/>
+        <projectService serviceInterface="com.abeade.plugin.fcm.push.settings.PushComponent"
+                        serviceImplementation="com.abeade.plugin.fcm.push.settings.PushComponent"/>
+    </extensions>
+
+    <actions>
+        <action id="abeade.fcm.pus.PushDialog" class="com.abeade.plugin.fcm.push.PushAction" text="Send push notification"
+                description="Sends push notifications using FCM" icon="PushIcons.PUSH_ACTION_ICON">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <add-to-group group-id="MainToolBar" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
