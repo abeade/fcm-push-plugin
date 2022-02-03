@@ -120,6 +120,7 @@ class AdbSmartSocketClient {
         if (!connected) {
             connected = true
             socket = Socket("127.0.0.1", port)
+            socket.soTimeout = SOCKET_TIMEOUT
             outStream = socket.getOutputStream()
             inStream = DataInputStream(socket.getInputStream())
         }
@@ -160,5 +161,9 @@ class AdbSmartSocketClient {
             }
             else -> throw Exception("Unrecognized status=$status")
         }
+    }
+
+    private companion object {
+        const val SOCKET_TIMEOUT = 2000
     }
 }

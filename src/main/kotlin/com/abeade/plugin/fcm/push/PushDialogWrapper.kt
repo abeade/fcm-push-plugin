@@ -50,7 +50,6 @@ class PushDialogWrapper(
         title = "FCM push sender"
         setOKButtonText("Send")
         setOKButtonIcon(AllIcons.Actions.Upload)
-        setCancelButtonIcon(AllIcons.Actions.Cancel)
     }
 
     val pushData: PushData?
@@ -61,7 +60,7 @@ class PushDialogWrapper(
     private lateinit var dataField: CustomEditorField
     private lateinit var dialog: PushDialog
 
-    override fun getDimensionServiceKey(): String? = DIMENSION_SERVICE_KEY
+    override fun getDimensionServiceKey(): String = DIMENSION_SERVICE_KEY
 
     override fun createCenterPanel(): JComponent {
         var edited = false
@@ -202,7 +201,7 @@ class PushDialogWrapper(
 
     override fun doOKAction() {
         val isMessage = dialog.messageRadioButton.isSelected
-        val dataJsonObject = JsonParser().parse(dataField.text).asJsonObject
+        val dataJsonObject = JsonParser.parseString(dataField.text).asJsonObject
         val jsonString = if (isMessage) {
             dataJsonObject.add(TO_PROPERTY, JsonPrimitive(dialog.firebaseIdField.text))
             dataJsonObject.toString()
@@ -225,7 +224,7 @@ class PushDialogWrapper(
         dialog.firebaseIdField.text.isBlank() -> ValidationInfo("Firebase Id required", dialog.firebaseIdField)
         dataField.text.isBlank() -> ValidationInfo("Data field required", dataField)
         !isValidJson() -> ValidationInfo("$dataFieldName must be a valid JSON object", dataField)
-        dialog.messageRadioButton.isSelected && JsonParser().parse(dataField.text).asJsonObject.has(TO_PROPERTY) ->
+        dialog.messageRadioButton.isSelected && JsonParser.parseString(dataField.text).asJsonObject.has(TO_PROPERTY) ->
             ValidationInfo("$dataFieldName must not contain the \"to\" field", dataField)
         else -> null
     }
@@ -234,7 +233,7 @@ class PushDialogWrapper(
         get() = if (dialog.messageRadioButton.isSelected) MESSAGE_LABEL else DATA_LABEL
 
     private fun isValidJson() = try {
-        JsonParser().parse(dataField.text).isJsonObject
+        JsonParser.parseString(dataField.text).isJsonObject
     } catch (e: JsonParseException) {
         false
     }

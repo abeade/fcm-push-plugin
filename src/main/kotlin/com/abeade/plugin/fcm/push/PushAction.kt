@@ -59,7 +59,7 @@ class PushAction : AnAction() {
             val response = httpClient.execute(request)
             val result = String(response.entity.content.readBytes())
             val fcmResponse = try {
-                Gson().fromJson<FCMResponse>(result, FCMResponse::class.java)
+                Gson().fromJson(result, FCMResponse::class.java)
             } catch (e: Exception) {
                 null
             }

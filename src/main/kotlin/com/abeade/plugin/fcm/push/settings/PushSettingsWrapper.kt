@@ -196,10 +196,14 @@ class PushSettingsWrapper(project: Project) {
     }
 
     private fun addTextChangeListeners() {
-        nameDocumentListener = settingsPanel.templateNameField.addTextChangeListener(::onNameChange)
-        templateDocumentListener = templateDataField.addTextChangeListener(::onTemplateChange)
-        templateDataListener = settingsPanel.templateDataRadioButton.addItemChangedListener(::onDataTypeChange)
-        templateMessageListener = settingsPanel.templateMessageRadioButton.addItemChangedListener(::onMessageTypeChange)
+        nameDocumentListener = settingsPanel.templateNameField.addTextChangeListener { onNameChange(it) }
+        templateDocumentListener = templateDataField.addTextChangeListener { onTemplateChange(it) }
+        templateDataListener = settingsPanel.templateDataRadioButton.addItemChangedListener { onDataTypeChange(it) }
+        templateMessageListener = settingsPanel.templateMessageRadioButton.addItemChangedListener {
+            onMessageTypeChange(
+                it
+            )
+        }
     }
 
     private fun removeTextChangeListeners() {

@@ -13,7 +13,7 @@
 
 ### Fixed
 
-## [0.7.2] - 2022-02-02
+## [0.7.2] - 2022-02-03
 ### Changed
 - Target latest Idea IC JDK
 - Move project to gradle

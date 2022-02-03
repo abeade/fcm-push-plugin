@@ -7,6 +7,6 @@ interface PushIcons {
     companion object {
 
         @JvmField
-        val PUSH_ACTION_ICON = IconLoader.getIcon("/icons/fcmPushIcon.png")
+        val PUSH_ACTION_ICON = IconLoader.getIcon("/icons/fcmPushIcon.png", Companion::class.java)
     }
 }
